@@ -86,4 +86,3 @@ func DeleteEvent(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-

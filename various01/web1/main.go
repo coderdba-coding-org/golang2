@@ -24,6 +24,7 @@ func main() {
 	router.HandleFunc("/events/{id}", db.GetOneEvent).Methods("GET")
 	router.HandleFunc("/events/{id}", db.UpdateEvent).Methods("PATCH")
 	router.HandleFunc("/events/{id}", db.DeleteEvent).Methods("DELETE")
+	//router.HandleFunc("/events/{id}", db.deleteEvent).Methods("DELETE") // to check if lowercase function is accessible
 	log.Fatal(http.ListenAndServe(":8081", router))
 
 }
