@@ -56,7 +56,7 @@ func main() {
     fmt.Printf("The value of y after function call - with handler - is: %s %d\n", h.Message, y)
 
     // this is not working if hello2 is uncommented inside func.go
-    h.Hello()
+    h.HandlerHello()
 
     // this is not working
     //h.FunctionsInternal.Hello2()

@@ -9,11 +9,12 @@ type Func interface {
   Hello()
   TenTimes(a float64)
   TenTimesPtr(a *float64)
+  New()
 }
 
 type FuncHandler struct {
 	Message string
-  //Functions Func  // reference the interface here
+  Functions Func  // reference the interface here
   //FunctionsInternal internalfunctions.FuncInternal  // reference the interface here
 }
 
@@ -22,10 +23,10 @@ func Hello() {
 
 }
 
-func (i *FuncHandler) Hello() {
+func (i *FuncHandler) HandlerHello() {
     fmt.Println("Hello in HandlerHello, really");
     fmt.Printf("DEBUG: %s - is the message in the handler\n", i.Message)
-    //i.Functions.Hello()
+    i.Functions.Hello()
     //i.FunctionsInternal.Hello2()
 }
 
