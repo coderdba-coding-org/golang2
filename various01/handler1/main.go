@@ -17,5 +17,6 @@ func main() {
 
     fmt.Printf("\nCALLING FUNCTIONS VIA HANDLER\n")
     h := handlers.Handler{}
+    fmt.Printf("h = %+v\n", h)
     h.Others.OthersHelloDummy2()
 }
