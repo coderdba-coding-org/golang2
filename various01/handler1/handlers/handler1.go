@@ -13,6 +13,6 @@ type Handler struct {
 func (i *Handler) HandleOthers() {
 
   fmt.Printf("\nDEBUG: In HandleOthers()\n")
-  //i.Others.OthersHello()
+  i.Others.OthersHello()
 
 }
