@@ -29,7 +29,7 @@ func main() {
     //
     //
 
-    fmt.Printf("CALLING FUNCTIONS VIA INTERFACE\n\n")
+    fmt.Printf("CALLING FUNCTIONS VIA HANDLER INTERFACE\n\n")
 
     h := functions.FuncHandler{}
     h.Init()
@@ -42,7 +42,8 @@ func main() {
 
     fmt.Printf("The value of y before function call is: %d\n", y)
 
-    functions.TenTimesPtr(ptrY)
+    //functions.TenTimesPtr(ptrY)
+    TenTimesPtr(ptrY)
     fmt.Printf("The value of y after function call is: %d\n", y)
 
     h.TenTimesPtr(ptrY)
