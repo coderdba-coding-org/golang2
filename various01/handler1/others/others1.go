@@ -4,7 +4,7 @@ import (
         "fmt"
 )
 
-type Others interface {
+type OthersInterface interface {
   OthersHelloDummy1()
   OthersHelloDummy2()
 }

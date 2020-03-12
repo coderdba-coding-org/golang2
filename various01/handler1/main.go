@@ -2,9 +2,15 @@ package main
 
 import (
         "fmt"
-        "handler1/handlers"
         "handler1/others"
+        "handler1/handlers"
+
 )
+
+//type Handler struct {
+ //Message string
+ //Others others.Others
+//}
 
 func main() {
 
@@ -17,6 +23,7 @@ func main() {
 
     fmt.Printf("\nCALLING FUNCTIONS VIA HANDLER\n")
     h := handlers.Handler{}
+    //h := Handler{}
     fmt.Printf("h = %+v\n", h)
-    h.Others.OthersHelloDummy2()
+    h.Others.OthersHelloDummy2()  // this line gives - panic: runtime error: invalid memory address or nil pointer dereference
 }
