@@ -10,14 +10,15 @@ type HandlersInterface interface {
 }
 
 type Handler struct {
- //Message string
  Others others.OthersInterface
  Handlers HandlersInterface
+ //Message string
 }
 
-func (i *Handler  ) HandleOthers() {
+func (i Handler) HandleOthers() {
 
   fmt.Printf("\nDEBUG: In HandleOthers()\n")
-  //i.Others.OthersHello()
-
+  //i.Others.OthersHello() //this wil fail as this is not there in the interface OthersInterface
+  i.Others.OthersHelloDummy1()
+  i.Others.OthersHelloDummy2()
 }

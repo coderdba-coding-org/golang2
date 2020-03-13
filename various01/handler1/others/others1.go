@@ -21,6 +21,6 @@ func (d DummyStruct) OthersHelloDummy1() {
     fmt.Println("Hello, OthersHelloDummy 1");
 }
 
-func OthersHelloDummy2() {
+func (d DummyStruct) OthersHelloDummy2() {
     fmt.Println("Hello, OthersHelloDummy 2");
 }
