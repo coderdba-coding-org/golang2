@@ -48,4 +48,7 @@ fmt.Println(StringWithCharset(5, charset))
 fmt.Println(String(7))
 fmt.Println(CreateRandomString(9))
 
+name := "origname"
+fmt.Println(name + "-" + CreateRandomString(5))
+
 }
