@@ -14,7 +14,9 @@ return e.firstName
 
 func main() {
 
-e1 := Employee{"ram", "raghu", 1}
+// Both with and without & work
+//e1 := Employee{"rama", "raghu", 1}
+e1 := &Employee{"rama", "raghu", 1}
 fmt.Println(e1.GetFirstName())
 
 }
