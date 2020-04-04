@@ -11,6 +11,7 @@ go mod init webdocker1
 go get github.com/gin-gonic/gin
 go mod tidy
 docker build . -t go-dock
+docker run --rm -p 3000:3000 go-dock
 curl http://localhost:3000/ping
 --> you should receive a response {"message":"pong"}
 ```
