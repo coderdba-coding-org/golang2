@@ -33,9 +33,12 @@ EmpID: 2,
 }
 
 employees := []Employee{e1,e2}
-//employeesFirstNames := []string{}
+
+// without pointer
 employeesFirstNames := []EmployeeFirstName{}
 
+// with pointer
+//employeesFirstNames := &[]EmployeeFirstName{}
 
 // create handlers
 helloHandler := func(w http.ResponseWriter, r *http.Request) {
@@ -51,16 +54,30 @@ employeesHandler := func(w http.ResponseWriter, r *http.Request) {
 }
 
 employeesFirstNameHandler := func(w http.ResponseWriter, r *http.Request) {
+
   log.Print("employees firstname endpoing called")
 
+  // without pointer
+  employeesFirstNames = nil 
 
-  var efn EmployeeFirstName
+  // with pointer
+  //*employeesFirstNames = nil 
+
+  efn := EmployeeFirstName{}
+
+  //i := 0
 
   for _, employee := range employees {
       
       efn = EmployeeFirstName{FirstName: employee.FirstName}
+      // This is working - without pointer reference
       employeesFirstNames = append(employeesFirstNames, efn)
+    
+      // This is working - with pointer reference
+      //*employeesFirstNames=append((*employeesFirstNames),efn)
+      //i++
   }
+
   b,_ := json.Marshal(employeesFirstNames) //ignore err - so have "_" instead of err
   w.Header().Set("Content-Type", "application/json")
   io.WriteString(w,string(b))
