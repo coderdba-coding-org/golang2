@@ -1,0 +1,4 @@
+responsewriter - 
+header.set(content-type, app-json)
+writeheader(http.statusok)
+json.NewEncoder(w).Encode(h.DB.GetEmployeeList)
