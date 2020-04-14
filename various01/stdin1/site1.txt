@@ -1,0 +1,382 @@
+https://stackoverflow.com/questions/20895552/how-to-read-from-standard-input-in-the-console
+
+How to read from standard input in the console?
+Ask Question
+Asked 6 years, 3 months ago
+Active 6 months ago
+Viewed 272k times
+
+
+261
+
+
+47
+I would like to read standard input from the command line, but my attempts have ended with the program exiting before I'm prompted for input. I'm looking for the equivalent of Console.ReadLine() in C#.
+
+This is what I currently have:
+
+package main
+
+import (
+    "bufio"
+    "fmt"
+    "os"
+)
+
+func main() {
+    reader := bufio.NewReader(os.Stdin)
+    fmt.Print("Enter text: ")
+    text, _ := reader.ReadString('\n')
+    fmt.Println(text)
+
+    fmt.Println("Enter text: ")
+    text2 := ""
+    fmt.Scanln(text2)
+    fmt.Println(text2)
+
+    ln := ""
+    fmt.Sscanln("%v", ln)
+    fmt.Println(ln)
+}
+go
+shareimprove this questionfollow
+edited Sep 24 '19 at 11:25
+
+aymericbeaumet
+4,76811 gold badge2626 silver badges4242 bronze badges
+asked Jan 3 '14 at 2:33
+
+Dante
+7,5911212 gold badges4040 silver badges6060 bronze badges
+This code looks correct. Out of curiosity, are you running this on the Playground? The Go Playground doesn't allow stdin input due to networking reasons. – LinearZoetrope Jan 3 '14 at 2:34
+Nevermind, it looks to be a subtle issue where you needed a pointer (see my answer). Though I'm not sure what the problem with the bufio.NewReader method is since it works for me. – LinearZoetrope Jan 3 '14 at 2:44 
+possible duplicate of Read from initial stdin in GO? – anatoly techtonik Feb 1 '15 at 19:49
+8
+Don't mix bufio buffering of any reader (e.g. bufio.NewReader(os.Stdin)) with direct reads from the underlining reader (e.g. fmt.Scanln(x) directly reads from os.Stdin). Buffering may read arbitrarily far ahead. (In this specific case the later should be fmt.Fscanln(reader,x) to read from the same buffer). – Dave C Jul 2 '15 at 14:05
+I don't get fmt.Sscanln works, it becomes "%v" after running – Beeno Tung Jan 8 '18 at 4:39
+add a comment
+11 Answers
+Active
+Oldest
+Votes
+
+287
+
+I'm not sure what's wrong with the block
+
+reader := bufio.NewReader(os.Stdin)
+fmt.Print("Enter text: ")
+text, _ := reader.ReadString('\n')
+fmt.Println(text)
+As it works on my machine. However, for the next block you need a pointer to the variables you're assigning the input to. Try replacing fmt.Scanln(text2) with fmt.Scanln(&text2). Don't use Sscanln, because it parses a string already in memory instead of from stdin. If you want to do something like what you were trying to do, replace it with fmt.Scanf("%s", &ln)
+
+If this still doesn't work, your culprit might be some weird system settings or a buggy IDE.
+
+shareimprove this answerfollow
+edited Jan 3 '14 at 2:59
+answered Jan 3 '14 at 2:42
+
+LinearZoetrope
+15.3k33 gold badges4242 silver badges6363 bronze badges
+2
+Are those supposed to be single quotes? ReadString('\n') or ReadString("\n")? – 425nesp Jul 16 '14 at 18:42
+8
+@425nesp yes, that's the delimeter, which is a single byte. golang.org/pkg/bufio/#Reader.ReadString – LinearZoetrope Jul 17 '14 at 5:59 
+3
+Good answer, but this fails when I try using backspace, etc keys – kumarharsh Feb 16 '17 at 8:33
+2
+So much for Golang to read a line from file via reader rd to variable s as if s,_ = rd.ReadString('\n'); true { s = strings.Trim(s, " \n") } – Nam G VU Sep 27 '17 at 10:20 
+2
+Just sharing an interesting thing (I'm a Golang beginner): \n must be inside single quotes (don't try to use double quotes). Or else, it'll reproduce this: cannot use "\n" (type string) as type byte in argument to reader.ReadString – ivanleoncz Dec 3 '18 at 2:56 
+show 2 more comments
+
+
+123
+
+you can as well try:
+
+scanner := bufio.NewScanner(os.Stdin)
+for scanner.Scan() {
+    fmt.Println(scanner.Text())
+}
+
+if scanner.Err() != nil {
+    // handle error.
+}
+shareimprove this answerfollow
+edited Oct 18 '17 at 21:18
+answered Feb 4 '15 at 0:05
+
+Helin Wang
+3,03111 gold badge2121 silver badges2727 bronze badges
+6
+You can remove the "for {}" if you just want one a one line input. – user2707671 Jan 4 '16 at 14:28
+3
+if there a for {} loop, how to come out from loop as you enter? Is there a special character that will make for loop to stop? - Thanks – Madhan Ganesh Jan 13 '16 at 0:26
+2
+@Madhan scanner.Scan() returns bool value to indicate exiting the for loop or not. – Helin Wang Jan 13 '16 at 0:51
+5
+You will get this error bufio.Scanner: token too long If your input is bigger than 64 * 1024 bytes. Also don't forget add fmt.Println(scanner.Err())below the for loop. – Yuvaraj Loganathan Jul 28 '17 at 10:53 
+What if I enter "abc\n^D", expected string is "abc\n" but it returns "abc". – Shivendra Mishra Aug 12 '18 at 16:48
+show 2 more comments
+
+92
+
+I think a more standard way to do this would be:
+
+package main
+
+import "fmt"
+
+func main() {
+    fmt.Print("Enter text: ")
+    var input string
+    fmt.Scanln(&input)
+    fmt.Print(input)
+}
+Take a look at the scan godoc: http://godoc.org/fmt#Scan
+
+Scan scans text read from standard input, storing successive space-separated values into successive arguments. Newlines count as space.
+
+Scanln is similar to Scan, but stops scanning at a newline and after the final item there must be a newline or EOF.
+
+shareimprove this answerfollow
+answered May 10 '15 at 20:07
+
+Pith
+2,91411 gold badge2525 silver badges4141 bronze badges
+10
+This doesn't seem to like spaces in the input string. – Hairy Chris Aug 16 '15 at 20:40 
+3
+@HairyChris yes this is strange. In the doc it says that stops scanning at a newline and after the final item there must be a newline or EOF so not sure why space "breaks" it... I guess it is a bug – karantan Dec 19 '15 at 10:58
+6
+There was a bug opened for this: github.com/golang/go/issues/5703 It got closed as WorkingAsIntended. See also: stackoverflow.com/questions/24005899/… and groups.google.com/forum/#!topic/golang-nuts/r6Jl4D9Juw0 Seems a lot of people have issues with this. Documentation change needed? Also, from that last link: "Scan and Scanln are for parsing and stuff like that, so just getting a single line of text from stdin would defeat the purpose." – user2707671 Jan 4 '16 at 15:37
+To me, its really confusing that fmt.Scan in any of its similar functions don't play well with spaces like the bufio.NewReader does. – FilBot3 Jan 12 '16 at 22:04
+3
+The same problem with spaces remains while using fmt.Scanln and fmt.Scan with the current 2016 go version (go version go1.6.2 linux/amd64). – Chiheb Nexus Nov 20 '16 at 16:45 
+add a comment
+
+27
+
+Always try to use the bufio.NewScanner for collecting input from the console. As others mentioned, there are multiple ways to do the job but Scanner is originally intended to do the job. Dave Cheney explains why you should use Scanner instead of bufio.Reader's ReadLine.
+
+https://twitter.com/davecheney/status/604837853344989184?lang=en
+
+Here is the code snippet answer for your question
+
+package main
+
+import (
+    "bufio"
+    "fmt"
+    "os"
+)
+
+/*
+ Three ways of taking input
+   1. fmt.Scanln(&input)
+   2. reader.ReadString()
+   3. scanner.Scan()
+
+   Here we recommend using bufio.NewScanner
+*/
+
+func main() {
+    // To create dynamic array
+    arr := make([]string, 0)
+    scanner := bufio.NewScanner(os.Stdin)
+    for {
+        fmt.Print("Enter Text: ")
+        // Scans a line from Stdin(Console)
+        scanner.Scan()
+        // Holds the string that scanned
+        text := scanner.Text()
+        if len(text) != 0 {
+            fmt.Println(text)
+            arr = append(arr, text)
+        } else {
+            break
+        }
+
+    }
+    // Use collected inputs
+    fmt.Println(arr)
+}
+If you don't want to programmatically collect the inputs, just add these lines
+
+   scanner := bufio.NewScanner(os.Stdin)
+   scanner.Scan()
+   text := scanner.Text()
+   fmt.Println(text)
+The output of above program will be:
+
+Enter Text: Bob
+Bob
+Enter Text: Alice
+Alice
+Enter Text:
+[Bob Alice]
+Above program collects the user input and saves them to an array. We can also break that flow with a special character. Scanner provides API for advanced usage like splitting using a custom function etc, scanning different types of I/O streams(Stdin, String) etc.
+
+shareimprove this answerfollow
+answered Apr 8 '18 at 6:48
+
+Naren Yellavula
+4,07611 gold badge2424 silver badges1919 bronze badges
+This should be the accepted answer. Not only is it a more accurate answer but it's of better quality. – Daniel Farrell Jan 15 at 5:01
+add a comment
+
+11
+
+Another way to read multiple inputs within a loop which can handle an input with spaces:
+
+package main
+import (
+    "fmt"
+    "bufio"
+    "os"
+)
+
+func main() {
+    scanner := bufio.NewScanner(os.Stdin)
+    var text string
+    for text != "q" {  // break the loop if text == "q"
+        fmt.Print("Enter your text: ")
+        scanner.Scan()
+        text = scanner.Text()
+        if text != "q" {
+            fmt.Println("Your text was: ", text)
+        }
+    }
+}
+Output:
+
+Enter your text: Hello world!
+Your text was:  Hello world!
+Enter your text: Go is awesome!
+Your text was:  Go is awesome!
+Enter your text: q
+shareimprove this answerfollow
+answered Nov 20 '16 at 16:57
+
+Chiheb Nexus
+6,35644 gold badges2020 silver badges3434 bronze badges
+2
+You could maybe just use a break in the inner "q" check and wrap it all in an infinite loop. Great answer by the way! – tebanep Nov 23 '16 at 20:29
+2
+Looks like you can also get rid of the conditional in the for loop now too. – irbanana Apr 19 '18 at 8:20
+add a comment
+
+5
+
+Try this code:-
+
+var input string
+func main() {
+      fmt.Print("Enter Your Name=")
+      fmt.Scanf("%s",&input)
+      fmt.Println("Hello "+input)
+      }
+shareimprove this answerfollow
+answered Jan 24 '17 at 15:56
+
+Shivam Sharma
+24022 silver badges1111 bronze badges
+3
+Seems like Scanf() doesn't accept white spaces in string – Eslam Mar 17 '17 at 21:50
+add a comment
+
+4
+
+I'm late to the party. But how about one liner:
+
+data, err := ioutil.ReadAll(os.Stdin)
+shareimprove this answerfollow
+answered Aug 12 '18 at 17:33
+
+Shivendra Mishra
+55422 silver badges1818 bronze badges
+Because os.Stdin doesn't 'end' it's impossible to read it all. You might be waiting a while... – gypsydave5 Aug 16 '18 at 11:10
+2
+press ctrl+d i.e. eot. – Shivendra Mishra Aug 16 '18 at 16:33
+2
+Yes, that'd do it - reminds me of writing emails with mail. – gypsydave5 Aug 16 '18 at 19:04
+add a comment
+
+3
+
+Cleanly read in a couple prompted values:
+
+// Create a single reader which can be called multiple times
+reader := bufio.NewReader(os.Stdin)
+// Prompt and read
+fmt.Print("Enter text: ")
+text, _ := reader.ReadString('\n')
+fmt.Print("Enter More text: ")
+text2, _ := reader.ReadString('\n')
+// Trim whitespace and print
+fmt.Printf("Text1: \"%s\", Text2: \"%s\"\n",
+    strings.TrimSpace(text), strings.TrimSpace(text2))
+Here's a run:
+
+Enter text: Jim
+Enter More text: Susie
+Text1: "Jim", Text2: "Susie"
+shareimprove this answerfollow
+answered Dec 30 '15 at 3:06
+
+Rohanthewiz
+68766 silver badges99 bronze badges
+2
+Also a nice way since strings.TrimSpace removes the '\n'. And I believe reader.ReadString('\n') is cross platform too. – user2707671 Jan 4 '16 at 14:27
+I'll guess that most of the time you want to remove \n by default, that it's why it is better bufio.NewScanner as @Naren Yellavula answer – John Balvin Arias Sep 1 '18 at 22:37
+add a comment
+
+3
+
+Can also be done like this:-
+
+package main
+import "fmt"     
+
+func main(){
+    var myname string
+fmt.Scanf("%s", &myname)           
+fmt.Println("Hello", myname)       
+}
+shareimprove this answerfollow
+answered Feb 16 '19 at 17:12
+
+Nitin yadav
+8411 silver badge77 bronze badges
+add a comment
+
+1
+
+You need to provide a pointer to the var you want to scan, like so:
+
+fmt.scan(&text2)
+shareimprove this answerfollow
+answered Mar 14 '17 at 18:20
+
+Liam Mertens
+2111 bronze badge
+add a comment
+
+0
+
+In my case, program was not waiting because I was using watcher command to auto run the program. Manually running the program go run main.go resulted in "Enter text" and eventually printing to console.
+
+fmt.Print("Enter text: ")
+var input string
+fmt.Scanln(&input)
+fmt.Print(input)
+shareimprove this answerfollow
+answered Sep 6 '19 at 15:28
+
+R Sun
+51744 silver badges1111 bronze badges
+2
+The limitation of the Scan* family is that they read up to a whitespace (e.g. space) separator. – George Tseres Dec 17 '19 at 7:25
+add a comment
+Highly active question. Earn 10 reputation in order to answer this question. The reputation requirement helps protect this question from spam and non-answer activity.
