@@ -1,3 +1,4 @@
+//training srini
 package main
 
 import "fmt"
