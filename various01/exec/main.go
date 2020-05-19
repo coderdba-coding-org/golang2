@@ -47,14 +47,22 @@ func runTestShellCommand1() {
         }
         // Printf prints string - println prints bytes
         fmt.Println("===================")
-        fmt.Printf("The date Printf is %s\n", out)
-        fmt.Println("The date Println is %s\n", out) //println does not recognize formatter %s
+        fmt.Printf("The date fmt.Printf is %s\n", out)
+        fmt.Println("The date fmt.Println is %s\n", out) //println does not recognize formatter %s
 
         fmt.Println("===================")
+        fmt.Printf("The date string(out) fmt.Printf is %s ", string(out))
+        fmt.Println("The date string(out) fmt.Println is %s\n", string(out)) //println does not recognize formatter %s
 
-        fmt.Printf("The date string(out) Printf is %s ", string(out))
-        fmt.Println("The date  string(out) Println is %s\n", string(out)) //println does not recognize formatter %s
         fmt.Println("===================")
+        log.Printf("The date log.Printf is %s\n", out)
+        log.Println("The date log.Println is %s\n", out) //println does not recognize formatter %s
+
+        log.Println("===================")
+        log.Printf("The date string(out) log.Printf is %s ", string(out))
+        log.Println("The date string(out) log.Println is %s\n", string(out)) //println does not recognize formatter %s
+
+        log.Println("===================")
 }
 
 func runTestShellCommand2() {
