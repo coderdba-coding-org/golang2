@@ -1,0 +1,80 @@
+package main
+
+import (
+	"fmt"
+	"log"
+	"net/http"
+        "time"
+
+	"github.com/gorilla/mux"
+
+        //"web3/pkg/db"
+        "web3/handlers"
+)
+
+func reconcileServiceLoop() {
+   for {
+        fmt.Println("Infinite Loop 1")
+        time.Sleep(time.Second)
+    }
+}
+
+func homeLink(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintf(w, "Welcome home!")
+}
+
+func startWebServer() {
+
+        fmt.Println("Starting web router")
+	router := mux.NewRouter().StrictSlash(true)
+
+	router.HandleFunc("/", homeLink)
+
+	router.HandleFunc("/createfilesync", handlers.SyncCreateFile).Methods("GET")
+	router.HandleFunc("/createfileasync", handlers.AsyncCreateFile).Methods("GET")
+
+	//router.HandleFunc("/event", db.CreateEvent).Methods("POST")
+	//router.HandleFunc("/events", db.GetAllEvents).Methods("GET")
+	//router.HandleFunc("/events/{id}", db.GetOneEvent).Methods("GET")
+	//router.HandleFunc("/events/{id}", db.UpdateEvent).Methods("PATCH")
+	//router.HandleFunc("/events/{id}", db.DeleteEvent).Methods("DELETE")
+	//router.HandleFunc("/events/{id}", db.deleteEvent).Methods("DELETE") // to check if lowercase function is accessible
+
+	log.Fatal(http.ListenAndServe(":8081", router))
+}
+
+func main() {
+
+
+        //fmt.Println("Calling reconcileServiceLoop()")
+	//reconcileServiceLoop()
+        //go reconcileServiceLoop()
+
+	//db.InitEvents()
+
+        //fmt.Println("Starting web router")
+	//router := mux.NewRouter().StrictSlash(true)
+
+	//router.HandleFunc("/", homeLink)
+
+	//router.HandleFunc("/createfilesync", handlers.SyncCreateFile).Methods("GET")
+	//router.HandleFunc("/createfileasync", handlers.AsyncCreateFile).Methods("GET")
+
+	////router.HandleFunc("/event", db.CreateEvent).Methods("POST")
+	////router.HandleFunc("/events", db.GetAllEvents).Methods("GET")
+	////router.HandleFunc("/events/{id}", db.GetOneEvent).Methods("GET")
+	////router.HandleFunc("/events/{id}", db.UpdateEvent).Methods("PATCH")
+	////router.HandleFunc("/events/{id}", db.DeleteEvent).Methods("DELETE")
+	////router.HandleFunc("/events/{id}", db.deleteEvent).Methods("DELETE") // to check if lowercase function is accessible
+
+	//log.Fatal(http.ListenAndServe(":8081", router))
+
+        fmt.Println("Starting web router - via a function")
+        go startWebServer()
+        //startWebServer()
+
+        fmt.Println("Calling reconcileServiceLoop()")
+	reconcileServiceLoop()
+        //go reconcileServiceLoop()
+
+}
