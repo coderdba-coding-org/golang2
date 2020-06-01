@@ -31,13 +31,16 @@ func func3() {
 }
 
 func main() {
+   
+   go func1() // 10 min
+   //time.Sleep(2 * time.Second)
 
-   go func1()
-   go func2()
+   go func2() // 30 min (2 min)
+   time.Sleep(5 * time.Second)
 
    // keep something looping in the end - if you want the previous loops to continue
    // otherwise, program puts the previous two in background, REACHES END OF PROGRAM 
    // - and all previous things will automatically be killed of as program has to exit
-   func3()
+   //func3() // like a web server
 
 }
