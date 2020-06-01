@@ -1,0 +1,36 @@
+package main
+
+import (
+	"fmt"
+	//"log"
+	//"net/http"
+        "time"
+
+	//"github.com/gorilla/mux"
+
+        //"web3/pkg/db"
+        //"web3/handlers"
+)
+
+func reconcileServiceLoop() {
+   for {
+        fmt.Println("Infinite Loop 1")
+        time.Sleep(time.Second)
+    }
+}
+
+
+func reconcileServiceLoop2() {
+   for {
+        fmt.Println("Infinite Loop 2")
+        time.Sleep(time.Second)
+    }
+}
+
+
+func main() {
+
+        go reconcileServiceLoop()
+        reconcileServiceLoop2()
+
+}
