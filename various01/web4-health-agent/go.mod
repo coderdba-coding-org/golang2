@@ -1,4 +1,4 @@
-module web4
+module web4-health-agent
 
 go 1.12
 

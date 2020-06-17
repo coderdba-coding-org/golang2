@@ -9,7 +9,7 @@ import (
 	"github.com/gorilla/mux"
 
         //"web4/pkg/db"
-        "web4/handlers"
+        "web4-health-agent/handlers"
 )
 
 var reconcileHealthy = "OK"
