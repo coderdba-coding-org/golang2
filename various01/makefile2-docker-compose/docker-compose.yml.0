@@ -1,0 +1,19 @@
+version: "3"
+
+services:
+
+  # influx container with database volume mounted at $PWD/influxdbstore
+  # influxdb port is 8086 mapped to host's 8087
+  influxdbstore:
+    image: "influxdb"
+    ports:
+      - "8087:8086"
+    networks:
+      - shared
+    volumes:
+      - "./influxdbstore:/var/lib/influxdb"
+    environment:
+      - INFLUXDB_DB=metrics
+
+networks:
+  shared:

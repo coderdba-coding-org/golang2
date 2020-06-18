@@ -3,16 +3,50 @@ version: "3"
 services:
 
   # influx container with database volume mounted at $PWD/influxdbstore
+  # influxdb port is 8086 mapped to host's 8087
   influxdbstore:
     image: "influxdb"
     ports:
-      - "8081:8086"
+      - "8087:8086"
     networks:
       - shared
     volumes:
       - "./influxdbstore:/var/lib/influxdb"
     environment:
       - INFLUXDB_DB=metrics
+
+# you can add more than one port as needed, one below the other
+  my-api:
+    build: .
+    image: "docker.company.com/app/podstatus-api:testing"
+    depends_on:
+      - influxdbstore
+    ports:
+      - "8088:8081"
+    networks:
+      - shared
+    volumes:
+      - "./test-podstatus:/podstatus"
+      - "./htpasswd:/etc/nginx/htpasswd"
+      - "./cert.crt:/etc/nginx/ssl/cert.crt"
+      - "./private.key:/etc/nginx/ssl/private.key"
+    environment:
+      - RUNTIME_ENVIRONMENT=local
+      - APP_ID=APP03131
+      - STATESTORE_HOST=localhost
+      - CONCURRENCY=10
+      - INFLUXDB_HOST=http://influxdbstore:8086
+      - INFLUXDB_DATABASE=metrics
+      - INFLUXDB_OUTPUT_TIMEOUT=60
+      - INFLUXDB_PUSH_INTERVAL=30s
+      - BATCHSIZE=10
+
+volumes:
+  influxdbstore:
+  test-statestore:
+  htpasswd:
+  crt.crt:
+  private.key:
 
 networks:
   shared:

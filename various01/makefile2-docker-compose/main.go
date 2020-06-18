@@ -6,8 +6,7 @@ import (
         "net/http"
 
         "github.com/gorilla/mux"
-
-  "web1/pkg/db"
+        "web1/pkg/db"
 )
 
 func homeLink(w http.ResponseWriter, r *http.Request) {

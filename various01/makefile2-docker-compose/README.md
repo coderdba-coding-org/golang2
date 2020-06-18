@@ -1,3 +1,6 @@
+## Influx DB 
+Influx db port is 8086 - pod port is mapped to 8087(or other) of host
+
 ## With only influxdb part in docker-compose.yml
 
 To Run:
@@ -14,7 +17,7 @@ services:
   influxdbstore:
     image: "influxdb"
     ports:
-      - "8081:8086"
+      - "8087:8086"
     networks:
       - shared
     volumes:
