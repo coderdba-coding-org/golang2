@@ -15,3 +15,22 @@ $ go build
 $ web1 (which is the executable)  
 
 In web browser - http://localhost:8082 (or other port used)  
+
+## GET, POST ETC
+
+### GET
+localhost:8081/events  
+localhost:8081/event/ID --> localhost:8081/event/1 and such  
+
+### POST Using Postman
+URL = localhost:8081/event  
+Body type = JSON (application/json)  
+Content = {"ID":"2","Title":"22","Description":"222"}  
+
+### All events
+router.HandleFunc("/", homeLink)  
+router.HandleFunc("/event", db.CreateEvent).Methods("POST")  
+router.HandleFunc("/events", db.GetAllEvents).Methods("GET")  
+router.HandleFunc("/events/{id}", db.GetOneEvent).Methods("GET")  
+router.HandleFunc("/events/{id}", db.UpdateEvent).Methods("PATCH")  
+router.HandleFunc("/events/{id}", db.DeleteEvent).Methods("DELETE")  
