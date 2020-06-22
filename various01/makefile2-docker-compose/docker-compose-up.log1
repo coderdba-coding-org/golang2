@@ -1,0 +1,45 @@
+$ docker-compose up
+Building podstatus-api
+Step 1/10 : FROM golang:1.13
+ ---> 84125009cb55
+Step 2/10 : WORKDIR ~/golang2/various01/makefile2-docker-compose
+ ---> Running in abf49ce38d7d
+Removing intermediate container abf49ce38d7d
+ ---> 1a15d98f5fbb
+Step 3/10 : ENV GO111MODULE=on
+ ---> Running in 0267dbfbc9ff
+Removing intermediate container 0267dbfbc9ff
+ ---> 8f3f13e0db7a
+Step 4/10 : COPY go.mod .
+ ---> 6c8cc36cff33
+Step 5/10 : COPY go.sum .
+ ---> 1a13e3559200
+Step 6/10 : RUN go mod download
+ ---> Running in 97b92e19094a
+go: finding github.com/gorilla/mux v1.7.4
+Removing intermediate container 97b92e19094a
+ ---> 9d2d4227e353
+Step 7/10 : COPY main.go .
+ ---> 34d911daf049
+Step 8/10 : ADD pkg/ ./pkg/
+ ---> dc8b185c4cc0
+Step 9/10 : RUN go test ./...
+ ---> Running in 788e2294710a
+?   	web1	[no test files]
+?   	web1/pkg/db	[no test files]
+Removing intermediate container 788e2294710a
+ ---> 17d61db3bf37
+Step 10/10 : RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -installsuffix cgo .
+ ---> Running in dac031c591f6
+Removing intermediate container dac031c591f6
+ ---> feaba5a2e49b
+Successfully built feaba5a2e49b
+Successfully tagged podstatus-api:testing
+WARNING: Image for service podstatus-api was built because it did not already exist. To rebuild this image you must use `docker-compose build` or `docker-compose up --build`.
+makefile2-docker-compose_influxdbstore_1 is up-to-date
+Creating makefile2-docker-compose_podstatus-api_1 ... error
+
+ERROR: for makefile2-docker-compose_podstatus-api_1  Cannot start service podstatus-api: Ports are not available: listen tcp 0.0.0.0:8088: bind: address already in use
+
+ERROR: for podstatus-api  Cannot start service podstatus-api: Ports are not available: listen tcp 0.0.0.0:8088: bind: address already in use
+ERROR: Encountered errors while bringing up the project.
