@@ -53,10 +53,10 @@ services:
 
 volumes:
   influxdbstore:
-  test-podstatestore:
+  #test-podstatestore:
   htpasswd:
-  crt.crt:
-  private.key:
+  #crt.crt:
+  #private.key:
 
 networks:
   shared:
