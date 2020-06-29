@@ -10,8 +10,8 @@ import (
 //const clientID = "<your client id>"
 //const clientSecret = "<your client secret>"
 
-const clientID = ""
-const clientSecret = ""
+const clientID = "9d1a3826c6b575840df3"
+const clientSecret = "23422697934ff00d15da664948c41f2e3dbb1f5566b42185"
 
 func main() {
 	fs := http.FileServer(http.Dir("public"))
