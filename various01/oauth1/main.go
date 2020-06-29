@@ -10,8 +10,8 @@ import (
 //const clientID = "<your client id>"
 //const clientSecret = "<your client secret>"
 
-const clientID = "<>"
-const clientSecret = "<>"
+const clientID = ""
+const clientSecret = ""
 
 func main() {
 	fs := http.FileServer(http.Dir("public"))
@@ -56,6 +56,10 @@ func main() {
 			fmt.Fprintf(os.Stdout, "could not parse JSON response: %v", err)
 			w.WriteHeader(http.StatusBadRequest)
 		}
+
+                //fmt.Printf (t.AccessToken)
+                fmt.Println ("access token is: " + t.AccessToken)
+                fmt.Fprintf(os.Stderr, "access token is: " + t.AccessToken);
 
 		// Finally, send a response to redirect the user to the "welcome" page
 		// with the access token

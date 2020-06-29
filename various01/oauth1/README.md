@@ -2,6 +2,18 @@
 https://www.sohamkamani.com/golang/2018-06-24-oauth-with-golang/  
 https://github.com/sohamkamani/go-oauth-example  
 
+### Setup oauth application in Github
+Settings --> Developer Settings --> OAuth Apps
+
+There, provide this:
+
+Application name: app1 (or other)
+
+Homepage URL: http://localhost:8080
+
+Authorization callback URL: http://localhost:8080/oauth/redirect (or other endpoint of the app which will receive the access_token returned by Github)  
+
+
 ### Code Notes
 Replace these in main.go:  
 
