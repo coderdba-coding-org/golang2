@@ -1,6 +1,13 @@
 ### Source
 https://www.sohamkamani.com/golang/2018-06-24-oauth-with-golang/  
+
 https://github.com/sohamkamani/go-oauth-example  
+
+http://networkbit.ch/golang-http-client/
+
+https://developer.github.com/v3/
+
+
 
 ### Setup oauth application in Github
 Settings --> Developer Settings --> OAuth Apps
