@@ -3,6 +3,9 @@ package main
 // Main reference: https://www.sohamkamani.com/golang/2018-06-24-oauth-with-golang/
 // For extended http code: http://networkbit.ch/golang-http-client/
 // For printing http requests to debug: https://medium.com/doing-things-right/pretty-printing-http-requests-in-golang-a918d5aaa000
+// To place token in header: https://developer.github.com/v3/
+// Response to byte-array: https://stackoverflow.com/questions/39945968/most-efficient-way-to-convert-io-readcloser-to-byte-array
+// Response to byte-array: https://stackoverflow.com/questions/41815909/is-there-a-way-to-extract-json-from-an-http-response-without-having-to-build-str
 
 import (
 	"encoding/json"
@@ -137,6 +140,16 @@ func main() {
 		//}
 		//fmt.Println("login is: " + u.Login)
 		//fmt.Println("location is: " + u.Location)
+
+		// this does not work
+		//var respBodyArray respBodyArray
+		//json.Unmarshal([]byte(resp.Body), &respBodyArray)
+
+		var respBodyMap map[string]interface{}
+
+		// note: marshalling the 'body' variable obtained earlier with "body, err := ioutil.ReadAll(resp.Body)"
+		json.Unmarshal([]byte(body), &respBodyMap)
+		fmt.Println("login is: ", respBodyMap["login"])
 
 		// THIS IS PART OF ORIGINAL CODE from https://www.sohamkamani.com/golang/2018-06-24-oauth-with-golang/
 		// Finally, send a response to redirect the user to the "welcome" page

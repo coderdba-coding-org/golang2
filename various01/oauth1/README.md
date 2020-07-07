@@ -1,12 +1,21 @@
 ### Source
-https://www.sohamkamani.com/golang/2018-06-24-oauth-with-golang/  
+https://www.sohamkamani.com/golang/2018-06-24-oauth-with-golang/   
 
 https://github.com/sohamkamani/go-oauth-example  
 
 http://networkbit.ch/golang-http-client/
 
-https://developer.github.com/v3/
+Main reference: https://www.sohamkamani.com/golang/2018-06-24-oauth-with-golang/
 
+For extended http code: http://networkbit.ch/golang-http-client/
+
+For printing http requests to debug: https://medium.com/doing-things-right/pretty-printing-http-requests-in-golang-a918d5aaa000
+
+To place token in header: https://developer.github.com/v3/ 
+
+Response to byte-array: https://stackoverflow.com/questions/39945968most-efficient-way-to-convert-io-readcloser-to-byte-array
+
+Response to byte-array: https://stackoverflow.com/questions/41815909/is-there-a-way-to-extract-json-from-an-http-response-without-having-to-build-str
 
 
 ### Setup oauth application in Github
