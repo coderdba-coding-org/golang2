@@ -31,7 +31,15 @@ type Todo struct {
 	Due       time.Time
 }
 
-type Todos []Todo
+type TodosMap []Todo
+
+type TodoTagged struct {
+	Name      string    `json:"name"`
+	Completed bool      `json:"completed"`
+	Due       time.Time `json:"due"`
+}
+
+type TodosTaggedMap []TodoTagged
 
 func main() {
 
@@ -56,6 +64,7 @@ func startServer() {
 	router.HandleFunc("/", homeLink)
 	router.HandleFunc("/printrequest", homeLinkPrintRequest)
 	router.HandleFunc("/todos", TodoIndex)
+	router.HandleFunc("/todostagged", TodoIndexTagged)
 	// start 'server' web server
 	log.Fatal(http.ListenAndServe(serverport, router))
 }
@@ -79,11 +88,24 @@ func clientHomeLink(w http.ResponseWriter, r *http.Request) {
 }
 
 // https://thenewstack.io/make-a-restful-json-api-go/
+// not fully json like - the struct keys in the struct start with uppercase (no json tags in struct)
 func TodoIndex(w http.ResponseWriter, r *http.Request) {
 
-	todos := Todos{
+	todos := TodosMap{
 		Todo{Name: "Write presentation"},
 		Todo{Name: "Host meetup"},
+	}
+
+	json.NewEncoder(w).Encode(todos)
+}
+
+// https://thenewstack.io/make-a-restful-json-api-go/
+// fully json like - the real 'json tags' here start with lowercase
+func TodoIndexTagged(w http.ResponseWriter, r *http.Request) {
+
+	todos := TodosTaggedMap{
+		TodoTagged{Name: "Write presentation"},
+		TodoTagged{Name: "Host meetup"},
 	}
 
 	json.NewEncoder(w).Encode(todos)
