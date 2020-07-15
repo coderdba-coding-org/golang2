@@ -3,6 +3,8 @@ Basic web with http and router & JSON: https://thenewstack.io/make-a-restful-jso
 Gorilla mux vs http for routes: https://levelup.gitconnected.com/experiment-golang-http-builtin-and-related-popular-packages-1d9a6dcb80d
 Various rendering - json, xml etc: https://www.alexedwards.net/blog/golang-response-snippets#json
 
+Slices: https://stackoverflow.com/questions/18042439/go-append-to-slice-in-struct
+
 For extended http code: http://networkbit.ch/golang-http-client/
 Parse to byte-array/map and struct: https://www.sohamkamani.com/blog/2017/10/18/parsing-json-in-golang/
 Printing requests to debug: https://medium.com/doing-things-right/pretty-printing-http-requests-in-golang-a918d5aaa000
@@ -17,3 +19,39 @@ Response to byte-array: https://stackoverflow.com/questions/41815909/is-there-a-
 
 What is map[string]interface{}
 https://stackoverflow.com/questions/48988823/difference-between-mapstringinterface-and-interface  
+
+
+===================
+POST DATA TO SERVER
+===================
+URL: http://localhost:8080/todostagged
+Method: POST
+Body: raw --> JSON (application/json)
+{key: value, key: value}
+Example:
+{"Name": "Write presentation"} --> only one key specified, other two left out
+{"Name": "sleep well", "Completed": true} --> only two keys specified, one left out
+
+{"Name": "clean desk", "Completed": false, "Due": "2018-03-29T13:34:00.000"} 
+    --> DATE NOT WORKING
+
+{"Name": "drive back", "Completed": false, "Due": "2018-03-29T13:34:26+05:30"} 
+    --> {drive back false 2018-03-29 13:34:26 +0530 IST}
+
+{"Name": "drive back", "Completed": false, "Due": "2018-03-29T13:34:26+05:00"}
+    --> {drive back false 2018-03-29 13:34:26 +0500 +0500}
+
+{"Name": "drive home", "Completed": false, "Due": "2018-03-29T13:34:00+00:00"} 
+    --> date kind of works like this:
+    {drive home false 2018-03-29 13:34:00 +0000 +0000}
+
+{"Name": "drive back", "Completed": false, "Due": "2018-03-29T13:34:00+00:00"} 
+    --> date kind of works like this:
+    {drive back false 2018-03-29 13:34:00 +0000 +0000}
+
+For UTC I guess this way:
+{"Name": "drive back", "Completed": false, "Due": "2018-03-29T13:34:00Z"} 
+    --> date kind of works like this: (this is incorrect usage)
+    {drive back false 2018-03-29 13:34:00 +0000 UTC}
+
+
