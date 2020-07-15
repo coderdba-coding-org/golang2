@@ -113,7 +113,8 @@ func TodoIndexTagged(w http.ResponseWriter, r *http.Request) {
 
 func clientGetTodosFromServer(w http.ResponseWriter, r *http.Request) {
 
-	//TBD - find the incoming URL and accordingly choose whether to get /todos or /todostagged from server
+	// find the incoming URL and accordingly choose whether to get /todos or /todostagged from server
+	// note: the URL will be just the endpoint like /todo and not the whole http://host:port/endpoint
 	endpoint := r.URL.String()
 	fmt.Println("clientGetTodosFromServer: URL is " + endpoint)
 
