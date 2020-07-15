@@ -74,7 +74,7 @@ func startClient() {
 	router := mux.NewRouter().StrictSlash(true)
 	router.HandleFunc("/", clientHomeLink)
 	router.HandleFunc("/todos", clientGetTodosFromServer)
-
+	router.HandleFunc("/todostagged", clientGetTodosFromServer)
 	// start 'client' web server
 	log.Fatal(http.ListenAndServe(clientport, router))
 }
@@ -95,7 +95,7 @@ func TodoIndex(w http.ResponseWriter, r *http.Request) {
 		Todo{Name: "Write presentation"},
 		Todo{Name: "Host meetup"},
 	}
-
+	// write the todo struct to response as json
 	json.NewEncoder(w).Encode(todos)
 }
 
@@ -107,14 +107,19 @@ func TodoIndexTagged(w http.ResponseWriter, r *http.Request) {
 		TodoTagged{Name: "Write presentation"},
 		TodoTagged{Name: "Host meetup"},
 	}
-
+	// write the todo struct to response as json
 	json.NewEncoder(w).Encode(todos)
 }
 
 func clientGetTodosFromServer(w http.ResponseWriter, r *http.Request) {
 
-	// create a request
-	req, err := http.NewRequest("GET", serverURL+"/todos", nil)
+	//TBD - find the incoming URL and accordingly choose whether to get /todos or /todostagged from server
+	endpoint := r.URL.String()
+	fmt.Println("clientGetTodosFromServer: URL is " + endpoint)
+
+	// create a request to the server
+	//req, err := http.NewRequest("GET", serverURL + "/todos", nil)
+	req, err := http.NewRequest("GET", serverURL+endpoint, nil) // assuming same endpoints are used in client and server
 	if err != nil {
 		fmt.Fprintf(os.Stdout, "clientGetTodosFromServer: Error creating HTTP request: %v", err)
 		w.WriteHeader(http.StatusBadRequest)
