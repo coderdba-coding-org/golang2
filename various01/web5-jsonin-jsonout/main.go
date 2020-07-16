@@ -41,6 +41,12 @@ type TodoTagged struct {
 
 type TodosTaggedSlice []TodoTagged
 
+type Item struct {
+	Name        string `json: name`
+	Description string `json: description`
+	Quantity    int    `json: quantity`
+}
+
 var todoList TodosSlice
 var todoListTagged TodosTaggedSlice
 
@@ -66,10 +72,15 @@ func startServer() {
 	router := mux.NewRouter().StrictSlash(true)
 	router.HandleFunc("/", homeLink).Methods("GET")
 	router.HandleFunc("/printrequest", homeLinkPrintRequest).Methods("GET")
-	router.HandleFunc("/todos", TodoIndex).Methods("GET")
-	router.HandleFunc("/todostagged", TodoIndexTagged).Methods("GET")
 
+	// canned todo's - with hardcoded local variables
+	router.HandleFunc("/todoscanned", TodoIndex).Methods("GET")
+	router.HandleFunc("/todostaggedcanned", TodoIndexTagged).Methods("GET")
+
+	// actual todo's - with global variables
+	router.HandleFunc("/todos", GetTodoIndex).Methods("GET")
 	router.HandleFunc("/todos", PostTodoIndex).Methods("POST")
+	router.HandleFunc("/todostagged", GetTodoIndexTagged).Methods("GET")
 	router.HandleFunc("/todostagged", PostTodoIndexTagged).Methods("POST")
 
 	// start 'server' web server
@@ -96,6 +107,7 @@ func clientHomeLink(w http.ResponseWriter, r *http.Request) {
 
 // https://thenewstack.io/make-a-restful-json-api-go/
 // not fully json like - the struct keys in the struct start with uppercase (no json tags in struct)
+// canned todo's
 func TodoIndex(w http.ResponseWriter, r *http.Request) {
 
 	todos := TodosSlice{
@@ -113,6 +125,7 @@ func TodoIndex(w http.ResponseWriter, r *http.Request) {
 
 // https://thenewstack.io/make-a-restful-json-api-go/
 // fully json like - the real 'json tags' here start with lowercase
+// canned todo's
 func TodoIndexTagged(w http.ResponseWriter, r *http.Request) {
 
 	todos := TodosTaggedSlice{
@@ -121,6 +134,18 @@ func TodoIndexTagged(w http.ResponseWriter, r *http.Request) {
 	}
 	// write the todo struct to response as json
 	json.NewEncoder(w).Encode(todos)
+}
+
+// GetTodoIndex - my own function (not from the reference docs)
+func GetTodoIndex(w http.ResponseWriter, r *http.Request) {
+	// write the todo struct to response as json
+	json.NewEncoder(w).Encode(todoList)
+}
+
+// GetTodoIndexTagged - my own function (not from the reference docs)
+func GetTodoIndexTagged(w http.ResponseWriter, r *http.Request) {
+	// write the todo struct to response as json
+	json.NewEncoder(w).Encode(todoListTagged)
 }
 
 // PostTodoIndex - my own function (not from the reference docs)

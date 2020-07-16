@@ -3,7 +3,10 @@ Basic web with http and router & JSON: https://thenewstack.io/make-a-restful-jso
 Gorilla mux vs http for routes: https://levelup.gitconnected.com/experiment-golang-http-builtin-and-related-popular-packages-1d9a6dcb80d
 Various rendering - json, xml etc: https://www.alexedwards.net/blog/golang-response-snippets#json
 
+Web, Json with Struct+slice https://stackoverflow.com/questions/17156371/how-to-get-json-response-from-http-get
+
 Slices: https://stackoverflow.com/questions/18042439/go-append-to-slice-in-struct
+
 
 For extended http code: http://networkbit.ch/golang-http-client/
 Parse to byte-array/map and struct: https://www.sohamkamani.com/blog/2017/10/18/parsing-json-in-golang/

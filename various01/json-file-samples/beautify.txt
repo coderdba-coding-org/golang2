@@ -1,0 +1,1 @@
+cat tracks.json |jq "."  > tracks-beautified.json
