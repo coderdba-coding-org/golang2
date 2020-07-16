@@ -71,6 +71,7 @@ func startServer() {
 
 	router.HandleFunc("/todos", PostTodoIndex).Methods("POST")
 	router.HandleFunc("/todostagged", PostTodoIndexTagged).Methods("POST")
+
 	// start 'server' web server
 	log.Fatal(http.ListenAndServe(serverport, router))
 }
@@ -102,38 +103,12 @@ func TodoIndex(w http.ResponseWriter, r *http.Request) {
 		Todo{Name: "Host meetup"},
 	}
 
+	// one more todo
 	oneMoreTodo := Todo{Name: "Sleep well"}
-
 	todos = append(todos, oneMoreTodo)
 
 	// write the todo struct to response as json
 	json.NewEncoder(w).Encode(todos)
-}
-
-// my own function
-// request body is a json todo item - one item per POST - which should be saved into a global variable
-func PostTodoIndex(w http.ResponseWriter, r *http.Request) {
-	var todo Todo
-	err := json.NewDecoder(r.Body).Decode(&todo)
-	if err != nil {
-		fmt.Println("PostTodoIndex: Failed to decode json request")
-	}
-	todoList = append(todoList, todo)
-	fmt.Println(todoList)
-}
-
-func PostTodoIndexTagged(w http.ResponseWriter, r *http.Request) {
-	var todo TodoTagged
-	err := json.NewDecoder(r.Body).Decode(&todo)
-	if err != nil {
-		fmt.Println("PostTodoIndexTagged: Failed to decode json request")
-		fmt.Println(err)
-	}
-
-	fmt.Println(todo)
-
-	todoListTagged = append(todoListTagged, todo)
-	fmt.Println(todoListTagged)
 }
 
 // https://thenewstack.io/make-a-restful-json-api-go/
@@ -146,6 +121,48 @@ func TodoIndexTagged(w http.ResponseWriter, r *http.Request) {
 	}
 	// write the todo struct to response as json
 	json.NewEncoder(w).Encode(todos)
+}
+
+// PostTodoIndex - my own function (not from the reference docs)
+// request body is a json todo item - one item per POST - which should be saved into a global variable
+func PostTodoIndex(w http.ResponseWriter, r *http.Request) {
+	var todo Todo
+
+	err := json.NewDecoder(r.Body).Decode(&todo)
+	if err != nil {
+		fmt.Println("PostTodoIndex: Failed to decode json request")
+	}
+
+	// Add the todo to the list
+	todoList = append(todoList, todo)
+
+	// print the todo list to console
+	fmt.Println(todoList)
+
+	// httpresponse with the todo list
+	json.NewEncoder(w).Encode(todoList)
+
+}
+
+// PostTodoIndexTagged - my own function (not from the reference docs)
+func PostTodoIndexTagged(w http.ResponseWriter, r *http.Request) {
+	var todo TodoTagged
+	err := json.NewDecoder(r.Body).Decode(&todo)
+	if err != nil {
+		fmt.Println("PostTodoIndexTagged: Failed to decode json request")
+		fmt.Println(err)
+	}
+
+	fmt.Println(todo)
+
+	todoListTagged = append(todoListTagged, todo)
+	fmt.Println(todoListTagged)
+
+	// print the todo list to console
+	fmt.Println(todoListTagged)
+
+	// httpresponse with the todo list
+	json.NewEncoder(w).Encode(todoListTagged)
 }
 
 func clientGetTodosFromServer(w http.ResponseWriter, r *http.Request) {
