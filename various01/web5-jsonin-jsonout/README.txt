@@ -1,3 +1,6 @@
+USES BOTH ioutil.ReadAll AND json.NewDecoder UTILITIES TO UNMARSHAL
+USES json.NewEncoder TO ENCODE
+
 References:
 Basic web with http and router & JSON: https://thenewstack.io/make-a-restful-json-api-go/ (has serving a json)
 Gorilla mux vs http for routes: https://levelup.gitconnected.com/experiment-golang-http-builtin-and-related-popular-packages-1d9a6dcb80d
