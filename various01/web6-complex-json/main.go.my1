@@ -106,62 +106,43 @@ func get_content() {
 	}
 }
 
-// Modified get_content with ioutil.ReadAll and json.NewDecoder
+// Modified get_content
 func get_content_2() error {
-
 	url := "http://ws.audioscrobbler.com/2.0/?method=geo.gettoptracks&api_key=c1572082105bd40d247836b5c1819623&format=json&country=Netherlands"
 
-        // get response from URL
 	res, err := http.Get(url)
 	perror(err)
 	defer res.Body.Close()
-
-        // ------------------------------------
-        // Unmarshall using ioutil.ReadAll 
-	fmt.Println("==============================")
-        fmt.Println("get_content_2: Using ioutil.ReadAll")
-	fmt.Println("==============================")
 
 	body, err := ioutil.ReadAll(res.Body)
 	if err != nil {
 		log.Fatal("get_content_2: Error reading response body. ", err)
 	}
 
-	// Print body as is - print the response body - to console (not as response out)
-	fmt.Printf("get_content_2: Response Body - as is after ioutil.ReadAll - NOT Unmarshalled\n %s\n", body)
+	// print the response body - to console (not as response out)
+	fmt.Printf("get_content_2: Response Body\n %s\n", body)
 
-        // Unmarshall
-        var data_2 Tracks 
-        json.Unmarshal(body, &data_2)
-        fmt.Printf("\n\nget_content_2: Results: After unmarshalling %v\n", data_2)
-
-
-        // ------------------------------------
-        // Unmarshall using json.NewDecoder
 	// Somehow this decoder does not seem to show any data
-	fmt.Println("\n\n==============================")
-	fmt.Println("get_content_2: Using json.NewDecoder now")
+	fmt.Println("\n\nUsing json.NewDecoder now")
 	fmt.Println("==============================")
-
 	decoder := json.NewDecoder(res.Body)
 	var data Tracks
 	err = decoder.Decode(&data)
 	if err != nil {
-		fmt.Printf("get_content_2: Error decoding response body:  %T\n%s\n%#v\n", err, err, err)
+		fmt.Printf("Error decoding response body:  %T\n%s\n%#v\n", err, err, err)
 
 		switch v := err.(type) {
 		case *json.SyntaxError:
-			fmt.Printf("get_content_2: Error type is: %v\n", v)
 			fmt.Println(string(body[v.Offset-40 : v.Offset]))
 		default:
-			fmt.Printf("get_content_2: Error type is: %v\n", v)
+			fmt.Printf("Error type is: %v", v)
 		}
 
-		return errors.New("get_content_2: Error decoding response body")
+		return errors.New("Error decoding response body")
 	}
 
-	fmt.Println("get_content_2: Json decoded successfully")
-	fmt.Println("get_content_2: Printing data in the json")
+	fmt.Println("Json decoded successfully")
+	fmt.Println("Printing data in the json")
 	for i, track := range data.Toptracks.Track {
 		fmt.Printf("%d: %s %s\n", i, track.Artist.Name, track.Name)
 	}
@@ -186,19 +167,19 @@ func getWebReadAll(w http.ResponseWriter, r *http.Request) {
 
 	body, err := ioutil.ReadAll(res.Body)
 	if err != nil {
-		log.Fatal("getWebReadAll: Error reading response body. ", err)
+		log.Fatal("get_content_2: Error reading response body. ", err)
 	}
 
 	// print the response body - to console (not as response out)
-	//fmt.Printf("getWebReadAll: Response Body\n %s\n", body)
+	//fmt.Printf("getWeb: Response Body\n %s\n", body)
 
 	// send back response using this body
 	w.Write(body)
 }
 
 func main() {
-	//get_content()
-	get_content_2()
+	get_content()
+	//get_content_2()
 
 	// comment this if you just want to play around with functions
 	//startserver()

@@ -1,0 +1,8 @@
+Using json.NewDecoder now
+==============================
+Error decoding response body:  *errors.errorString
+EOF
+&errors.errorString{s:"EOF"}
+
+--> Actually it looks like 'unexpected end of json input'
+--> https://github.com/golang/go/issues/25956 - the issue (from https://play.golang.org/p/gr5cHhrpmbK)
