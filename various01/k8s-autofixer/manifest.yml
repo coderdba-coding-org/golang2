@@ -1,0 +1,17 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: k8s-autofixer
+  annotations:
+    k8s-namespace: kube-system
+spec:
+  revisionHistoryLimit: 10
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        role: k8s-autofixer
+    spec:
+      containers:
+      - name: k8s-autofixer
+        image: docker.company.com/k8s/k8s-autofixer:0.0.0
