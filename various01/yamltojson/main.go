@@ -3,7 +3,8 @@ package main
 import (
     "fmt"
     "io/ioutil"
-    "path/filepath"
+	"path/filepath"
+	"encoding/json"
 
     "gopkg.in/yaml.v2"
 )
@@ -62,7 +63,16 @@ func main() {
 		fmt.Printf("Error unmarshaling file content to struct")
 	}
 	
+	fmt.Printf("Printing from Struct:\n")
     fmt.Printf("APIVersion value is: %#v\n", service.APIVersion)
 	fmt.Printf("Kind value is: %#v\n", service.Kind)
+
+	// Marshal to Json
+
+	serviceJson, err := json.Marshal(&service)
+	fmt.Printf("Printing from Json:\n")
+	//fmt.Printf("Json is: %+v\n", serviceJson)
+	fmt.Printf("%s\n", string(serviceJson))
+
 }
 
