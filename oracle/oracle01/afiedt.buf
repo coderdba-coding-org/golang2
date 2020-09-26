@@ -1,3 +1,2 @@
-select json_object('Machine' is b.machine, 'Owner' is a.owner) from v$access a, v$session b where a.sid=b.sid order by b.machine, b.username, a.type, a.owner, a.object
-
+select name, value from gv$parameter where name like 'local_listener'
 /

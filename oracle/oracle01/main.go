@@ -79,7 +79,10 @@ func main() {
         getDbName(db)
         getDbNameJson(db)
         getAppMachineNameJson(db)
-        getSessionDetails(db)
+        getSessionDetailsJson(db)
+        getListenerJson(db)
+        getDbUniqueNameJson(db)
+        getPdbName(db)
 
 	//------------------------------
         // Close and exit
@@ -119,6 +122,16 @@ func getDbNameJson(db *sql.DB) {
         getRows(db, dbQuery)
 }
 
+
+func getPdbName(db *sql.DB) {
+
+	fmt.Println("\n\nINFO - In getPdbName")
+
+        dbQuery := "select json_object('PdbName' is global_name) from global_name"
+
+        getRows(db, dbQuery)
+}
+
 func getAppMachineNameJson(db *sql.DB) {
 
 	fmt.Println("\n\nINFO - In getAppMachineNameJson")
@@ -126,34 +139,53 @@ func getAppMachineNameJson(db *sql.DB) {
 	//------------------------------------------------
         // Querying as json - single column, multi row - WORKS
 	//------------------------------------------------
-        ////dbQuery = "select b.machine from v$access a, v$session b where a.sid=b.sid order by b.machine"
+        ////dbQuery = "select b.machine from gv$access a, gv$session b where a.sid=b.sid order by b.machine"
     
         // THIS WORKS
-        dbQuery := "select json_object('Machine' is b.machine) from v$access a, v$session b where a.sid=b.sid and rownum < 10 order by b.machine"
+        dbQuery := "select json_object('Machine' is b.machine) from gv$access a, gv$session b where a.sid=b.sid and rownum < 10 order by b.machine"
 
         // Distinct does not work
-        //dbQuery = "select distinct(json_object('Machine' is b.machine)) from v$access a, v$session b where a.sid=b.sid order by b.machine"
-        //dbQuery = "select json_object('Machine' is distinct(b.machine)) from v$access a, v$session b where a.sid=b.sid order by b.machine"
+        //dbQuery = "select distinct(json_object('Machine' is b.machine)) from gv$access a, gv$session b where a.sid=b.sid order by b.machine"
+        //dbQuery = "select json_object('Machine' is distinct(b.machine)) from gv$access a, gv$session b where a.sid=b.sid order by b.machine"
 
         getRows(db, dbQuery)
 }
 
-func getSessionDetails(db *sql.DB) {
+func getSessionDetailsJson(db *sql.DB) {
 
 	fmt.Println("\n\nINFO - In getSessionDetails")
 
-	//------------------------------------------------
         // Querying as json - multi column, multi row - WORKS
-	//------------------------------------------------
-        ////dbQuery = "select b.machine, a.owner, a.type, a.object, b.sid, b.username from v$access a, v$session b where a.sid=b.sid order by machine, username, type, owner, object"
+        ////dbQuery = "select b.machine, a.owner, a.type, a.object, b.sid, b.username from gv$access a, gv$session b where a.sid=b.sid order by machine, username, type, owner, object"
         // This works
-        //dbQuery = "select json_object('Machine' is b.machine, 'Owner' is a.owner) from v$access a, v$session b where a.sid=b.sid and rownum < 10 order by b.machine, b.username, a.type, a.owner, a.object "
+        //dbQuery = "select json_object('Machine' is b.machine, 'Owner' is a.owner) from gv$access a, gv$session b where a.sid=b.sid and rownum < 10 order by b.machine, b.username, a.type, a.owner, a.object "
 
         // This works
-        //dbQuery = "select json_object('AppMachine' is b.machine, 'ObjectOwner' is a.owner, 'ObjectType' is a.type, 'Object' is a.object, 'AppUser' is b.username) from v$access a, v$session b where a.sid=b.sid and rownum < 10 order by b.machine, b.username, a.type, a.owner, a.object "
+        //dbQuery = "select json_object('AppMachine' is b.machine, 'ObjectOwner' is a.owner, 'ObjectType' is a.type, 'Object' is a.object, 'AppUser' is b.username) from gv$access a, gv$session b where a.sid=b.sid and rownum < 10 order by b.machine, b.username, a.type, a.owner, a.object "
 
         // This works
-        dbQuery := "select json_object('AppMachine' is b.machine, 'ObjectOwner' is a.owner, 'ObjectType' is a.type, 'Object' is a.object, 'AppUser' is b.username, 'Port' is b.port, 'Server' is server) from v$access a, v$session b where a.sid=b.sid and rownum < 10 order by b.machine, b.username, a.type, a.owner, a.object "
+        dbQuery := "select json_object('AppMachine' is b.machine, 'ObjectOwner' is a.owner, 'ObjectType' is a.type, 'Object' is a.object, 'AppUser' is b.username, 'Port' is b.port, 'Server' is server) from gv$access a, gv$session b where a.sid=b.sid and rownum < 10 order by b.machine, b.username, a.type, a.owner, a.object "
+
+        getRows(db, dbQuery)
+}
+
+
+func getListenerJson(db *sql.DB) {
+
+	fmt.Println("\n\nINFO - In getListener")
+
+        // Querying as json 
+        dbQuery := "select json_object('Listener' is a.value) from gv$parameter a where name like 'local_listener'"
+
+        getRows(db, dbQuery)
+}
+
+func getDbUniqueNameJson(db *sql.DB) {
+
+	fmt.Println("\n\nINFO - In getDbUniqueName")
+
+        // Querying as json 
+        dbQuery := "select json_object('DbUniqueName' is a.value) from v$parameter a where name = 'db_unique_name'"
 
         getRows(db, dbQuery)
 }
