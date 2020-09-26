@@ -17,6 +17,32 @@ type DbConfig struct {
 	Password string
 }
 
+type DbName struct {
+        DbName string
+}
+
+func getRows(db *sql.DB, dbQuery string) {
+
+	rows, err := db.Query(dbQuery)
+	if err != nil {
+		fmt.Println(".....Error processing query")
+		fmt.Println(err)
+		return
+	}
+	defer rows.Close()
+
+        //fmt.Println(rows) // this prints bytes
+
+	fmt.Println("... Parsing query results")
+
+	var rowString string
+	for rows.Next() {
+		rows.Scan(&rowString)
+		fmt.Println(rowString)
+	}
+
+}
+
 func main() {
 
 	//------------------------------
@@ -29,7 +55,7 @@ func main() {
 
 	//------------------------------
 	// credentials from config file
-	configfile := "config/oratestdb.json"
+	configfile := "config/oradb.json"
 	dbConfig := DbConfig{}
 
 	// TBD - Error handling
@@ -68,4 +94,88 @@ func main() {
 	}
 	fmt.Println("... Connected to Database")
 
+	//------------------------------
+        // Querying a single column works
+	//------------------------------
+	//dbQuery := "select table_name from user_tables where table_name not like 'DM$%' and table_name not like 'ODMR$%'"
+	dbQuery := "select name from v$database"
+        //dbQuery := "select b.machine from v$access a, v$session b where a.sid=b.sid order by b.machine"
+
+        // multi column query not working
+        //dbQuery := "select b.machine, a.owner, a.type, a.object, b.sid, b.username from v$access a, v$session b where a.sid=b.sid order by machine, username, type, owner, object"
+
+	rows, err := db.Query(dbQuery)
+	if err != nil {
+		fmt.Println(".....Error processing query")
+		fmt.Println(err)
+		return
+	}
+	defer rows.Close()
+
+	fmt.Println("... Parsing query results")
+	var rowString string
+	for rows.Next() {
+		rows.Scan(&rowString)
+		fmt.Println(rowString)
+	}
+
+	//----------------------------------
+        // Querying as json - single column
+	//----------------------------------
+        dbQuery = "select json_object('DbName' is name) database_name from v$database"
+        //dbQuery = "select json_object(name) from v$database"
+
+	rows, err = db.Query(dbQuery)
+	if err != nil {
+		fmt.Println(".....Error processing query")
+		fmt.Println(err)
+		return
+	}
+	defer rows.Close()
+
+        //fmt.Println(rows) // this prints bytes
+
+	fmt.Println("... Parsing query results")
+	//var rowString string
+	for rows.Next() {
+		rows.Scan(&rowString)
+		fmt.Println(rowString)
+	}
+
+	//--------------------------------------------------
+        // Querying as json - single column, single row
+	//--------------------------------------------------
+        dbQuery = "select json_object('DbName' is name) database_name from v$database"
+
+	rows, err = db.Query(dbQuery)
+	if err != nil {
+		fmt.Println(".....Error processing query")
+		fmt.Println(err)
+		return
+	}
+	defer rows.Close()
+
+        //fmt.Println(rows) // this prints bytes
+
+	fmt.Println("... Parsing query results")
+	//var rowString string
+	for rows.Next() {
+		rows.Scan(&rowString)
+		fmt.Println(rowString)
+	}
+
+	//------------------------------------------------
+        // Querying as json - single column, multi row
+	//------------------------------------------------
+        dbQuery = "select b.machine from v$access a, v$session b where a.sid=b.sid order by b.machine"
+        getRows(db, dbQuery)
+
+	//------------------------------
+        // Close and exit
+	//------------------------------
+	fmt.Println("... Closing connection")
+	finishTime := time.Now()
+	fmt.Println("Finished at ", finishTime.Format("03:04:05:06 PM"))
+
 }
+
