@@ -29,7 +29,6 @@ func getRows(db *sql.DB, dbQuery string) {
 		fmt.Println(err)
 		return
 	}
-	defer rows.Close()
 
         //fmt.Println(rows) // this prints bytes
 
@@ -40,6 +39,8 @@ func getRows(db *sql.DB, dbQuery string) {
 		rows.Scan(&rowString)
 		fmt.Println(rowString)
 	}
+
+        rows.Close()
 
 }
 
@@ -119,9 +120,9 @@ func main() {
 		fmt.Println(rowString)
 	}
 
-	//----------------------------------
-        // Querying as json - single column
-	//----------------------------------
+	//------------------------------------------------
+        // Querying as json - single column, single row
+	//------------------------------------------------
         dbQuery = "select json_object('DbName' is name) database_name from v$database"
         //dbQuery = "select json_object(name) from v$database"
 
@@ -142,32 +143,21 @@ func main() {
 		fmt.Println(rowString)
 	}
 
-	//--------------------------------------------------
-        // Querying as json - single column, single row
-	//--------------------------------------------------
-        dbQuery = "select json_object('DbName' is name) database_name from v$database"
-
-	rows, err = db.Query(dbQuery)
-	if err != nil {
-		fmt.Println(".....Error processing query")
-		fmt.Println(err)
-		return
-	}
-	defer rows.Close()
-
-        //fmt.Println(rows) // this prints bytes
-
-	fmt.Println("... Parsing query results")
-	//var rowString string
-	for rows.Next() {
-		rows.Scan(&rowString)
-		fmt.Println(rowString)
-	}
+	//------------------------------------------------
+        // Querying as json - single column, multi row - WORKS
+	//------------------------------------------------
+        ////dbQuery = "select b.machine from v$access a, v$session b where a.sid=b.sid order by b.machine"
+        dbQuery = "select json_object('Machine' is b.machine) from v$access a, v$session b where a.sid=b.sid order by b.machine"
+        getRows(db, dbQuery)
 
 	//------------------------------------------------
-        // Querying as json - single column, multi row
+        // Querying as json - multi column, multi row - WORKS
 	//------------------------------------------------
-        dbQuery = "select b.machine from v$access a, v$session b where a.sid=b.sid order by b.machine"
+        ////dbQuery = "select b.machine, a.owner, a.type, a.object, b.sid, b.username from v$access a, v$session b where a.sid=b.sid order by machine, username, type, owner, object"
+        // This works
+        //dbQuery = "select json_object('Machine' is b.machine, 'Owner' is a.owner) from v$access a, v$session b where a.sid=b.sid and rownum < 10 order by b.machine, b.username, a.type, a.owner, a.object "
+        dbQuery = "select json_object('AppMachine' is b.machine, 'ObjectOwner' is a.owner, 'ObjectType' is a.type, 'Object' is a.object, 'AppUser' is b.username) from v$access a, v$session b where a.sid=b.sid and rownum < 10 order by b.machine, b.username, a.type, a.owner, a.object "
+
         getRows(db, dbQuery)
 
 	//------------------------------
@@ -176,6 +166,5 @@ func main() {
 	fmt.Println("... Closing connection")
 	finishTime := time.Now()
 	fmt.Println("Finished at ", finishTime.Format("03:04:05:06 PM"))
-
 }
 
