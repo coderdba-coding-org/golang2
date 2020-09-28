@@ -83,7 +83,6 @@ func main() {
         getListenerJson(db)
         getDbUniqueNameJson(db)
         getPdbName(db)
-        getClusterHosts(db)
 
 	//------------------------------
         // Close and exit
@@ -188,19 +187,6 @@ func getDbUniqueNameJson(db *sql.DB) {
         // Querying as json 
         dbQuery := "select json_object('DbUniqueName' is a.value) from v$parameter a where name = 'db_unique_name'"
 
-        getRows(db, dbQuery)
-}
-
-func getClusterHosts(db *sql.DB) {
-
-	fmt.Println("\n\nINFO - In getClusterHosts")
-
-        // Querying as json 
-        dbQuery := "select json_object('ClusterHost' is a.host_name) from gv$instance a"
-        getRows(db, dbQuery)
-
-        // Querying as json 
-        dbQuery = "select json_object('DbInstance' is a.instance_name, 'ClusterHost' is a.host_name) from gv$instance a"
         getRows(db, dbQuery)
 }
 
