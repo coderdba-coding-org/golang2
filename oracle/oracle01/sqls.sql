@@ -24,14 +24,17 @@ select a.value ora_phy_db, b.owner ora_schema, b.table_name from v$parameter a, 
 -- TBD
 
 -- ora_session -> ora_user [taillabel="authenticated_as"]
-select a.value ora_phy_db, b.sid || ':' || b.serial# ora_session, b.username ora_user from v$parameter a, gv$session b where a.name = 'db_unique_name';
+-- old style: select a.value ora_phy_db, b.sid || ':' || b.serial# ora_session, b.username ora_user from v$parameter a, gv$session b where a.name = 'db_unique_name';
+select a.value ora_phy_db, b.con_id || ':' || inst_id || ':' ||  b.sid || ':' || b.serial# ora_session, b.username ora_user from v$parameter a, gv$session b where a.name = 'db_unique_name';
 
 -- ora_session -> ora_table [taillabel="interacts_with"]
-select a.value ora_phy_db, b.sid || ':' || b.serial# ora_session from v$parameter a, gv$session b, gv$access c where a.name = 'db_unique_name' and b.con_id = c.con_id and b.inst_id = c.inst_id and b.sid = c.sid;
+select a.value ora_phy_db, b.con_id || ':' || inst_id || ':' || b.sid || ':' || b.serial# ora_session from v$parameter a, gv$session b, gv$access c where a.name = 'db_unique_name' and b.con_id = c.con_id and b.inst_id = c.inst_id and b.sid = c.sid;
 
 -- tap_instance -> ora_session [taillabel="connected_to"]
-select a.value ora_phy_db, b.sid || ':' || b.serial# ora_session, b.machine tap_instance from v$parameter a, gv$session b where a.name = 'db_unique_name';
+select a.value ora_phy_db, b.con_id || ':' || inst_id || ':' ||  b.sid || ':' || b.serial# ora_session, b.machine tap_instance from v$parameter a, gv$session b where a.name = 'db_unique_name';
 
+-- Reference: Unique with con_id, inst_id, sid, serial#
+--select con_id || ':' || inst_id || ':' || sid || ':' || serial# from gv$session where rownum < 20;
 
 ---------------------------------------------------
 -- General samples - with json output from Oracle
