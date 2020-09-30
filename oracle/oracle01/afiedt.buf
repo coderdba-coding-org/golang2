@@ -1,3 +1,2 @@
-select a.value ora_phy_db, con_id || ':' || inst_id || ':' ||  b.sid || ':' || b.serial# ora_session, b.machine tap_instance 
-from v$parameter a, gv$session b where a.name = 'db_unique_name' and rownum < 10
+select * from v$session where rownum < 10 and machine like 'gom%'
 /

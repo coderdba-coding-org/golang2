@@ -12,7 +12,7 @@ set lines 150
 -- Specfic sqls
 ---------------------------------------------------
 -- ora_exadata_cluster -> ora_phy_db [taillabel="hosts"]
--- TBD
+-- TBD --> get from OEM
 
 -- ora_phy_db -> ora_schema [taillabel="hosts"]
 select distinct a.value ora_phy_db, b.owner ora_schema from v$parameter a, dba_tables b where a.name = 'db_unique_name';
@@ -21,7 +21,7 @@ select distinct a.value ora_phy_db, b.owner ora_schema from v$parameter a, dba_t
 select a.value ora_phy_db, b.owner ora_schema, b.table_name from v$parameter a, dba_tables b where a.name = 'db_unique_name';
 
 -- ora_session -> ora_lsnr [taillabel="connected_to"]
--- TBD
+-- TBD --> may not be possible except from listener log files on db hosts
 
 -- ora_session -> ora_user [taillabel="authenticated_as"]
 -- old style: select a.value ora_phy_db, b.sid || ':' || b.serial# ora_session, b.username ora_user from v$parameter a, gv$session b where a.name = 'db_unique_name';
