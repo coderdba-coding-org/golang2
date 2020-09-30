@@ -1,0 +1,228 @@
+package main
+
+import (
+	"database/sql"
+	"encoding/json"
+	"fmt"
+	"os"
+	"time"
+
+	_ "gopkg.in/goracle.v2"
+)
+
+type DbConfig struct {
+	Host     string
+	Database string
+	Username string
+	Password string
+}
+
+type DbName struct {
+        DbName string
+}
+
+
+func main() {
+
+	//------------------------------
+	// credentials hardcoded (original code style)
+	//username := "TEMP"
+	//password := "WRONGPW"
+	//host := "db22-scan1:1521"
+	//database := "TESTDB"
+	//------------------------------
+
+	//------------------------------
+	// credentials from config file
+	configfile := "config/oradb.json"
+	dbConfig := DbConfig{}
+
+	// TBD - Error handling
+	file, err := os.Open(configfile)
+	//if err != nil {  return err }
+	decoder := json.NewDecoder(file)
+	err = decoder.Decode(&dbConfig)
+	//if err != nil {  return err }
+
+	fmt.Println("printing config read from file")
+	fmt.Println(dbConfig)
+
+	username := dbConfig.Username
+	password := dbConfig.Password
+	host := dbConfig.Host
+	database := dbConfig.Database
+
+	//------------------------------
+
+	currentTime := time.Now()
+	fmt.Println("Starting at : ", currentTime.Format("03:04:05:06 PM"))
+
+	fmt.Println("\n\nINFO - Setting up Database Connection")
+	db, err := sql.Open("goracle", username+"/"+password+"@"+host+"/"+database)
+	if err != nil {
+		fmt.Println("\n\nERR - DB Setup Failed")
+		fmt.Println(err)
+		return
+	}
+	defer db.Close()
+
+	fmt.Println("\n\nINFO - Opening Database Connection")
+	if err = db.Ping(); err != nil {
+		fmt.Println("Error connecting to the database: %s\n", err)
+		return
+	}
+	fmt.Println("\n\nINFO - Connected to Database")
+
+	//------------------------------------------------
+        // Run db query functions
+	//------------------------------------------------
+        getDbName(db)
+        getDbNameJson(db)
+        getAppMachineNameJson(db)
+        getSessionDetailsJson(db)
+        getListenerJson(db)
+        getDbUniqueNameJson(db)
+        getPdbName(db)
+        getClusterHosts(db)
+
+	//------------------------------
+        // Close and exit
+	//------------------------------
+	fmt.Println("\n\nINFO - Closing connection")
+	finishTime := time.Now()
+	fmt.Println("Finished at ", finishTime.Format("03:04:05:06 PM"))
+}
+
+func getDbName(db *sql.DB) {
+        
+	fmt.Println("\n\nINFO - In getDbName")
+
+	//------------------------------
+        // Querying a single column works
+	//------------------------------
+	//dbQuery := "select table_name from user_tables where table_name not like 'DM$%' and table_name not like 'ODMR$%'"
+	dbQuery := "select name from v$database"
+        //dbQuery := "select b.machine from v$access a, v$session b where a.sid=b.sid order by b.machine"
+
+        // multi column query not working
+        //dbQuery := "select b.machine, a.owner, a.type, a.object, b.sid, b.username from v$access a, v$session b where a.sid=b.sid order by machine, username, type, owner, object"
+
+        getRows(db, dbQuery)
+}
+
+func getDbNameJson(db *sql.DB) {
+
+	fmt.Println("\n\nINFO - In getDbNameJson")
+
+	//------------------------------------------------
+        // Querying as json - single column, single row
+	//------------------------------------------------
+        dbQuery := "select json_object('DbName' is name) database_name from v$database"
+        //dbQuery = "select json_object(name) from v$database"
+
+        getRows(db, dbQuery)
+}
+
+
+func getPdbName(db *sql.DB) {
+
+	fmt.Println("\n\nINFO - In getPdbName")
+
+        dbQuery := "select json_object('PdbName' is global_name) from global_name"
+
+        getRows(db, dbQuery)
+}
+
+func getAppMachineNameJson(db *sql.DB) {
+
+	fmt.Println("\n\nINFO - In getAppMachineNameJson")
+
+	//------------------------------------------------
+        // Querying as json - single column, multi row - WORKS
+	//------------------------------------------------
+        ////dbQuery = "select b.machine from gv$access a, gv$session b where a.sid=b.sid order by b.machine"
+    
+        // THIS WORKS
+        dbQuery := "select json_object('Machine' is b.machine) from gv$access a, gv$session b where a.sid=b.sid and rownum < 10 order by b.machine"
+
+        // Distinct does not work
+        //dbQuery = "select distinct(json_object('Machine' is b.machine)) from gv$access a, gv$session b where a.sid=b.sid order by b.machine"
+        //dbQuery = "select json_object('Machine' is distinct(b.machine)) from gv$access a, gv$session b where a.sid=b.sid order by b.machine"
+
+        getRows(db, dbQuery)
+}
+
+func getSessionDetailsJson(db *sql.DB) {
+
+	fmt.Println("\n\nINFO - In getSessionDetails")
+
+        // Querying as json - multi column, multi row - WORKS
+        ////dbQuery = "select b.machine, a.owner, a.type, a.object, b.sid, b.username from gv$access a, gv$session b where a.sid=b.sid order by machine, username, type, owner, object"
+        // This works
+        //dbQuery = "select json_object('Machine' is b.machine, 'Owner' is a.owner) from gv$access a, gv$session b where a.sid=b.sid and rownum < 10 order by b.machine, b.username, a.type, a.owner, a.object "
+
+        // This works
+        //dbQuery = "select json_object('AppMachine' is b.machine, 'ObjectOwner' is a.owner, 'ObjectType' is a.type, 'Object' is a.object, 'AppUser' is b.username) from gv$access a, gv$session b where a.sid=b.sid and rownum < 10 order by b.machine, b.username, a.type, a.owner, a.object "
+
+        // This works
+        dbQuery := "select json_object('AppMachine' is b.machine, 'ObjectOwner' is a.owner, 'ObjectType' is a.type, 'Object' is a.object, 'AppUser' is b.username, 'Port' is b.port, 'Server' is server) from gv$access a, gv$session b where a.sid=b.sid and rownum < 10 order by b.machine, b.username, a.type, a.owner, a.object "
+
+        getRows(db, dbQuery)
+}
+
+
+func getListenerJson(db *sql.DB) {
+
+	fmt.Println("\n\nINFO - In getListener")
+
+        // Querying as json 
+        dbQuery := "select json_object('Listener' is a.value) from gv$parameter a where name like 'local_listener'"
+
+        getRows(db, dbQuery)
+}
+
+func getDbUniqueNameJson(db *sql.DB) {
+
+	fmt.Println("\n\nINFO - In getDbUniqueName")
+
+        // Querying as json 
+        dbQuery := "select json_object('DbUniqueName' is a.value) from v$parameter a where name = 'db_unique_name'"
+
+        getRows(db, dbQuery)
+}
+
+func getClusterHosts(db *sql.DB) {
+
+	fmt.Println("\n\nINFO - In getClusterHosts")
+
+        // Querying as json 
+        dbQuery := "select json_object('ClusterHost' is a.host_name) from gv$instance a"
+        getRows(db, dbQuery)
+
+        // Querying as json 
+        dbQuery = "select json_object('DbInstance' is a.instance_name, 'ClusterHost' is a.host_name) from gv$instance a"
+        getRows(db, dbQuery)
+}
+
+func getRows(db *sql.DB, dbQuery string) {
+
+	rows, err := db.Query(dbQuery)
+	if err != nil {
+		fmt.Println("\n\nERR - Error processing query")
+		fmt.Println(err)
+		return
+	}
+
+        //fmt.Println(rows) // this prints bytes
+
+	fmt.Println("WORKING - Parsing query results")
+
+	var rowString string
+	for rows.Next() {
+		rows.Scan(&rowString)
+		fmt.Println(rowString)
+	}
+
+        rows.Close()
+
+}
