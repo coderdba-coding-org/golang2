@@ -1,10 +1,17 @@
+spool /tmp/sqls
+
 col username format a15
 col machine format a50
 col owner format a12
 col type format a25
 col object format a25
 
-set pages 50
+col ora_session format a30
+col ora_schema  format a30
+col ora_table   format a50
+col ORA_PHY_DB  format a15
+
+set pages 500
 set lines 150
 
 
@@ -14,28 +21,38 @@ set lines 150
 -- ora_exadata_cluster -> ora_phy_db [taillabel="hosts"]
 -- TBD --> get from OEM
 
+prompt ora_phy_db to ora_schema
 -- ora_phy_db -> ora_schema [taillabel="hosts"]
+-- dont do rownum < 100 here
+--select distinct a.value ora_phy_db, b.owner ora_schema from v$parameter a, dba_tables b where a.name = 'db_unique_name' and rownum < 100;
 select distinct a.value ora_phy_db, b.owner ora_schema from v$parameter a, dba_tables b where a.name = 'db_unique_name';
 
--- ora_table -> ora_schema [taillabel="member_of"]
-select a.value ora_phy_db, b.owner ora_schema, b.table_name from v$parameter a, dba_tables b where a.name = 'db_unique_name';
 
+prompt ora_table to ora_schema
+-- ora_table -> ora_schema [taillabel="member_of"]
+select a.value ora_phy_db, b.owner ora_schema, b.table_name ora_table from v$parameter a, dba_tables b where a.name = 'db_unique_name' and rownum < 100;
+
+-- prompt ora_session to ora_lsnr
 -- ora_session -> ora_lsnr [taillabel="connected_to"]
 -- TBD --> may not be possible except from listener log files on db hosts
 
+prompt ora_session to ora_user
 -- ora_session -> ora_user [taillabel="authenticated_as"]
--- old style: select a.value ora_phy_db, b.sid || ':' || b.serial# ora_session, b.username ora_user from v$parameter a, gv$session b where a.name = 'db_unique_name';
-select a.value ora_phy_db, b.con_id || ':' || inst_id || ':' ||  b.sid || ':' || b.serial# ora_session, b.username ora_user from v$parameter a, gv$session b where a.name = 'db_unique_name';
+-- old style: select a.value ora_phy_db, b.sid || ':' || b.serial# ora_session, b.username ora_user from v$parameter a, gv$session b where a.name = 'db_unique_name' and rownum < 100;
+select a.value ora_phy_db, b.con_id || ':' || inst_id || ':' ||  b.sid || ':' || b.serial# ora_session, b.username ora_user from v$parameter a, gv$session b where a.name = 'db_unique_name' and rownum < 100;
 
+prompt ora_session to ora_table
 -- ora_session -> ora_table [taillabel="interacts_with"]
-select a.value ora_phy_db, b.con_id || ':' || inst_id || ':' || b.sid || ':' || b.serial# ora_session from v$parameter a, gv$session b, gv$access c where a.name = 'db_unique_name' and b.con_id = c.con_id and b.inst_id = c.inst_id and b.sid = c.sid;
+select a.value ora_phy_db, b.con_id || ':' || c.inst_id || ':' || b.sid || ':' || b.serial# ora_session from v$parameter a, gv$session b, gv$access c where a.name = 'db_unique_name' and b.con_id = c.con_id and b.inst_id = c.inst_id and b.sid = c.sid and c.type like 'TABLE%' and rownum < 100;
 
+prompt tap_instance to ora_session
 -- tap_instance -> ora_session [taillabel="connected_to"]
-select a.value ora_phy_db, b.con_id || ':' || inst_id || ':' ||  b.sid || ':' || b.serial# ora_session, b.machine tap_instance from v$parameter a, gv$session b where a.name = 'db_unique_name';
+select a.value ora_phy_db, b.con_id || ':' || inst_id || ':' ||  b.sid || ':' || b.serial# ora_session, b.machine tap_instance from v$parameter a, gv$session b where a.name = 'db_unique_name' and rownum < 100;
 
 -- Reference: Unique with con_id, inst_id, sid, serial#
---select con_id || ':' || inst_id || ':' || sid || ':' || serial# from gv$session where rownum < 20;
+--select con_id || ':' || inst_id || ':' || sid || ':' || serial# from gv$session where rownum < 20 and rownum < 100;
 
+/*
 ---------------------------------------------------
 -- General samples - with json output from Oracle
 ---------------------------------------------------
@@ -64,3 +81,6 @@ select json_object('ClusterHost' is a.host_name) from gv$instance a;
 
 -- Instance of multi-instance RAC cluster and its host
 select json_object('DbInstance' is a.instance_name, 'ClusterHost' is a.host_name) from gv$instance a;
+*/
+
+spool off

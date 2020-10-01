@@ -1,2 +1,2 @@
-select * from v$session where rownum < 10 and machine like 'gom%'
+select distinct a.value ora_phy_db, b.owner ora_schema from v$parameter a, dba_tables b where a.name = 'db_unique_name' and rownum < 100
 /
