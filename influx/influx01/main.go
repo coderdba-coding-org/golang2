@@ -56,7 +56,7 @@ func main() {
 }
 
 func QueryDb(c *gin.Context) {
-        cmd := "SELECT mean(db_up_status) FROM gowrishora1 WHERE oracledb_service = 'ORDPROD' AND time = now() - 30m"
+        cmd := "SELECT mean(db_up_status) FROM gowrishora1 WHERE oracledb_service = 'ORDPROD' AND time > now() - 30m"
         log.Println("Query Is", cmd)
 
 	q := client.Query{
@@ -87,7 +87,7 @@ func QueryDb(c *gin.Context) {
 
 /*
 func QueryDbNotWorking() (res OracleMetric) {
-        cmd := "SELECT mean(db_up_status) FROM gowrishora1 WHERE oracledb_service = 'ORDPROD' AND time = now() - 30m"
+        cmd := "SELECT mean(db_up_status) FROM gowrishora1 WHERE oracledb_service = 'ORDPROD' AND time > now() - 30m"
 
 	q := client.Query{
 		Command:  cmd,
@@ -113,7 +113,7 @@ func QueryDbNotWorking() (res OracleMetric) {
 
 /*
 func QueryDbOrig() (res []client.Result, err error) {
-        cmd := "SELECT mean(db_up_status) FROM gowrishora1 WHERE oracledb_service = 'ORDPROD' AND time = now() - 30m"
+        cmd := "SELECT mean(db_up_status) FROM gowrishora1 WHERE oracledb_service = 'ORDPROD' AND time > now() - 30m"
 
 	q := client.Query{
 		Command:  cmd,
