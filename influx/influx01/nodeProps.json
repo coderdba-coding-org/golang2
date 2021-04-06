@@ -1,0 +1,20 @@
+{
+    "nodes": [
+      {"id": "MyApp", 
+       "baseline": 10, 
+       "tapApp": "myapp-v001", 
+       "metricSQL":"SELECT count(metric_value) FROM oracle_dbstatus WHERE _ci_id = 'CI1234' AND application = 'RDBMS' AND oracledb_service = 'ORDPROD' AND metric_name = 'instance_status' AND time > now() - 30m", 
+       "influxURL":"https://metrics-shared.prod.company.com/", 
+       "defaultThreshod":10, 
+       "layerCakeURL":"URL"
+       },
+      {"id": "OtherApp", 
+       "baseline": 10, 
+       "tapApp": "otherapp-v001", 
+       "metricSQL":"SELECT count(metric_value) FROM oracle_dbstatus WHERE _ci_id = 'CI1234' AND application = 'RDBMS' AND oracledb_service = 'ORDPROD' AND metric_name = 'instance_status' AND time > now() - 30m", 
+       "influxURL":"https://metrics-shared.prod.company.com/", 
+       "defaultThreshod":10, 
+       "layerCakeURL":"URL"
+       }
+    ]
+}  

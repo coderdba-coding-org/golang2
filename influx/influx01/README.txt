@@ -7,6 +7,12 @@
 -- Gin: https://semaphoreci.com/community/tutorials/building-go-web-applications-and-microservices-using-gin
 -- Gin with mySql: https://medium.com/@_ektagarg/golang-a-todo-app-using-gin-980ebb7853c8
 -- Gin with Mongo: https://dev.to/faruq2/how-to-build-a-crud-rest-api-with-go-gin-and-fauna-37o6
+-- Gin with client and servrer: https://medium.com/wesionary-team/building-rest-api-in-gin-framework-8c069716113e
+-- Gin JSON binding using 'BindJSON' which can give EOF error: https://github.com/gin-gonic/gin/issues/715
+-- Gin JSON binding using 'ShouldBind': https://github.com/gin-gonic/gin/issues/715
+
+-- Reading JSON file to Struct: https://www.golangprograms.com/golang-read-json-file-into-struct.html#:~:text=The%20json%20package%20includes%20Unmarshal,should%20be%20in%20capitalize%20format.
+-- Reading JSON file to Struct: https://tutorialedge.net/golang/parsing-json-with-golang/
 
 Initialize the project module
 go mod init influx01
