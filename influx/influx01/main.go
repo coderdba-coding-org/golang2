@@ -152,7 +152,7 @@ func main() {
 
 func QueryDbTgt(c *gin.Context) {
         //cmd := "SELECT mean(db_up_status) FROM gowrishora1 WHERE oracledb_service = 'ORDPROD' AND time > now() - 30m"
-        cmd := "SELECT count(metric_value) FROM oracle_dbstatus WHERE _blossom_id = 'CI02989373' AND application = 'RDBMS' AND oracledb_service = 'ORDPROD' AND metric_name = 'instance_status' AND time > now() - 30m"
+        cmd := "SELECT count(metric_value) FROM oracle_dbstatus WHERE _blossom_id = 'CI1234' AND application = 'RDBMS' AND oracledb_service = 'ORDPROD' AND metric_name = 'instance_status' AND time > now() - 30m"
         log.Println("Query Is", cmd)
 
 	q := client.Query{
