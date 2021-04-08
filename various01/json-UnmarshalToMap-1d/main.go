@@ -50,6 +50,7 @@ func main() {
 	]`
 
 	// Declared an empty interface of type Array
+        //  [] for array, of map of [string] key, and interface{} value
 	var results []map[string]interface{}
 
 	// Unmarshal or Decode the JSON to the interface.
