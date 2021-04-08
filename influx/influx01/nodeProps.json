@@ -3,18 +3,50 @@
       {"id": "MyApp", 
        "baseline": 10, 
        "tapApp": "myapp-v001", 
-       "metricSQL":"SELECT count(metric_value) FROM oracle_dbstatus WHERE _ci_id = 'CI1234' AND application = 'RDBMS' AND oracledb_service = 'ORDPROD' AND metric_name = 'instance_status' AND time > now() - 30m", 
-       "influxURL":"https://metrics-shared.prod.company.com/", 
-       "defaultThreshod":10, 
+       "metricSQL":"SELECT count(metric_value) AS value FROM oracle_dbstatus WHERE _ci_id = 'CI1234' AND application = 'RDBMS' AND oracledb_service = 'ORDPROD' AND metric_name = 'instance_status' AND time > now() - 300m", 
+       "influxURL":"https://metricsengine-shared.prod.company.com/", 
+       "defaultThreshod":11, 
+       "layerCakeURL":"URL"
+       },
+      {"id": "OraDB", 
+       "baseline": 15, 
+       "tapApp": "myapp-v001", 
+       "metricSQL":"SELECT count(metric_value) AS value FROM oracle_dbstatus WHERE _ci_id = 'CI1234' AND application = 'RDBMS' AND oracledb_service = 'ORDPROD' AND metric_name = 'instance_status' AND time > now() - 300m", 
+       "influxURL":"https://metricsengine-shared.prod.company.com/", 
+       "defaultThreshod":11, 
+       "layerCakeURL":"URL"
+       },
+      {"id": "OrderCheckCall",
+       "baseline": 20,
+       "tapApp": "ordersapi-v001",
+       "metricSQL":"SELECT percentile(value, 95) AS value FROM \"ecom-api-response-time\" WHERE (application = 'ecomordersv4api' AND cluster = 'ecomordersv4api' AND environment = 'prod' AND container = 'app') AND time > now() - 30m",
+       "influxURL":"https://metricsengine-platform.prod.company.com/",
+       "defaultThreshod":11,
+       "layerCakeURL":"URL"
+       },
+      {"id": "OrdersAPI",
+       "baseline": 25,
+       "tapApp": "ordersapi-v001",
+       "metricSQL":"SELECT percentile(value, 95) AS value FROM \"ecom-api-response-time\" WHERE (application = 'ecomordersv4api' AND cluster = 'ecomordersv4api' AND environment = 'prod' AND container = 'app') AND time > now() - 30m",
+       "influxURL":"https://metricsengine-platform.prod.company.com/",
+       "defaultThreshod":11,
+       "layerCakeURL":"URL"
+       },
+      {"id": "OrderLoader",
+       "baseline": 30,
+       "tapApp": "orderloader-v001",
+       "metricSQL":"SELECT mean(p95) AS value FROM ecomEnterpriseOrdersLoaderProcessorProcessAvro WHERE (environment = 'prod' AND cluster = 'ecomordersloaderv1' AND application = 'ecomordersloaderv1' AND container='app') AND time > now() - 30m",
+       "influxURL":"https://metricsengine-platform.prod.company.com/",
+       "defaultThreshod":11,
        "layerCakeURL":"URL"
        },
       {"id": "OtherApp", 
-       "baseline": 10, 
+       "baseline": 35, 
        "tapApp": "otherapp-v001", 
-       "metricSQL":"SELECT count(metric_value) FROM oracle_dbstatus WHERE _ci_id = 'CI1234' AND application = 'RDBMS' AND oracledb_service = 'ORDPROD' AND metric_name = 'instance_status' AND time > now() - 30m", 
-       "influxURL":"https://metrics-shared.prod.company.com/", 
-       "defaultThreshod":10, 
+       "metricSQL":"SELECT count(metric_value) AS value FROM oracle_dbstatus WHERE _ci_id = 'CI1234' AND application = 'RDBMS' AND oracledb_service = 'ORDPROD' AND metric_name = 'instance_status' AND time > now() - 30m", 
+       "influxURL":"https://metricsengine-shared.prod.company.com/", 
+       "defaultThreshod":11, 
        "layerCakeURL":"URL"
        }
     ]
-}  
+} 

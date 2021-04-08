@@ -15,10 +15,17 @@
 
 -- Influx client for go: https://golang.hotexamples.com/examples/github.com.influxdata.influxdb.influxql/-/ParseStatement/golang-parsestatement-function-examples.html
 
+
+
 -- Struct traversing to find key: https://stackoverflow.com/questions/38654383/how-to-search-for-an-element-in-a-golang-slice
 -- Struct to file as json: https://www.golangprograms.com/golang-writing-struct-to-json-file.html
 -- Access JSON elements in go: https://stackoverflow.com/questions/35660467/how-to-access-fields-of-a-json-in-go
 -- Access JSON elements in go: https://medium.com/@irshadhasmat/golang-simple-json-parsing-using-empty-interface-and-without-struct-in-go-language-e56d0e69968
+-- Access JSON elements in go: https://yourbasic.org/golang/json-example/#decode-unmarshal-json-to-struct
+
+-- Influx 'Result' documentation: https://pkg.go.dev/github.com/influxdata/influxdb/client/v2#Result
+---- https://pkg.go.dev/github.com/influxdata/influxdb@v1.8.4/models#Row
+---- https://pkg.go.dev/github.com/influxdata/influxdb@v1.8.4/models
 
 -- Reading JSON file to Struct: https://www.golangprograms.com/golang-read-json-file-into-struct.html#:~:text=The%20json%20package%20includes%20Unmarshal,should%20be%20in%20capitalize%20format.
 -- Reading JSON file to Struct: https://tutorialedge.net/golang/parsing-json-with-golang/
