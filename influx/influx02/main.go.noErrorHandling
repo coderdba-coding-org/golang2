@@ -57,19 +57,12 @@ type NodeInputList struct {
 // Variable to store master-node-list
 var nodeList NodeList
 
-// Variable to store master-node-list file
-var masterNodeListFile string = "nodeProps.json"
-
 func main() {
 
 	log.Println("Entering main()")
 
-        /* THIS WILL POPULATE THE GLOBAL VARIABLE
-           INSTEAD, PLACING THIS IN FUNCTIONS INTO A LOCAL VARIABLE AS NEEDED
-           THAT WILL HELP QUERY THE LATEST IN THE CASE THE MASTER-NODE-LIST FILE CHANGES
 	log.Println("main(): Reading node properties")
-        nodeList, err := ReadMasterNodeList(masterNodeListFile)
-        */
+        ReadMasterNodeList("nodeProps.json")
 
         // Uncomment these for debugging
 	//log.Println("main(): Running QueryNodeMetric(nodeList.Nodes[0]) for one node to debug")
@@ -90,13 +83,12 @@ func main() {
 }
 
 // Read the master-list of nodes into memory
-func ReadMasterNodeList(filePath string) (nodeList NodeList, err error) {
+func ReadMasterNodeList(filePath string) {
 
         jsonFile, err := os.Open(filePath)
         if err != nil {
             fmt.Println(err)
-            return nodeList, errors.New("Could not read master node list")
-        } 
+        }
     
         defer jsonFile.Close()
     
@@ -108,8 +100,6 @@ func ReadMasterNodeList(filePath string) (nodeList NodeList, err error) {
         //for i := 0; i < len(nodeList.Nodes); i++ {
             //fmt.Println("Node Id: " + nodeList.Nodes[i].Id)
         //}
-
-        return nodeList, nil
 }
 
 // Start web server
@@ -135,13 +125,6 @@ func StartWebServer() {
 
         // get nodes 
 	router.GET("/nodes", func(c *gin.Context) {
-
-                nodeList, err := ReadMasterNodeList(masterNodeListFile)
-                if err != nil {
-                    c.JSON(500, gin.H{
-                         "message": "Error reading node properties",
-                    })
-                }
 
                 // Bind the node list json to response context
                 c.ShouldBind(&nodeList) 
@@ -176,7 +159,7 @@ func StartWebServer() {
 	//router.GET("/testquery", QueryDbTgt)
 
         // get the metric value for a node
-	router.GET("/nodemetric/:nodeName", GetNodeMetric)
+	//router.GET("/getmetric/:nodeName", GetNodeMetric)
 
         // get the metric value for input node list
 	router.GET("/getnodelistmetric", GetNodeInputMetric)
@@ -239,14 +222,6 @@ func QueryNodeMetric(node Node) (res []client.Result, err error){
 
 // TBD - Return value and Error to be added
 func GetNodeById (nodeId string) (node Node){
-
-        nodeList, err := ReadMasterNodeList(masterNodeListFile)
-
-        if err != nil {
-           log.Println("GetNodeById(): Error: ")
-           log.Println(err)
-           return nodeList.Nodes[0] 
-        }
 
         // print to debug
         //fmt.Println(nodeList)
@@ -421,8 +396,8 @@ func QueryDbTgt(c *gin.Context) {
 
 	dbclient, err := client.NewHTTPClient(client.HTTPConfig{
 		//Addr: "http://localhost:8086",
-		//Addr: "https://metricsfrontdoor-shared.prod.company.com/",
-		Addr: "https://metricsqueryengine-shared.prod.company.com/",
+		//Addr: "https://metricsdoor-shared.prod.company.com/",
+		Addr: "https://metricsengine-shared.prod.company.com/",
               
 	})
         if err != nil {
@@ -447,24 +422,16 @@ func QueryDbTgt(c *gin.Context) {
 	}
 }
 
-// Gets metrics for the node in URL parameter
+// Gets metrics for all nodes in nodeList
 func GetNodeMetric(c *gin.Context) {
 
     nodeName := c.Params.ByName("nodeName")
     var metricSQL string
     var metricURL string
+    //var baseLine  int
     var baseLine  float64
+    //var defaultThreshold int
     var defaultThreshold float64
-
-    nodeList, err := ReadMasterNodeList(masterNodeListFile)
-    if err != nil {
-       log.Println("GetNodeMetric(): Error: ")
-       log.Println(err)
-       c.JSON(500, gin.H{ "message": "Error reading node properties", })
-       return
-    }
-
-    var found int = 0
 
     for i := range nodeList.Nodes {
         if nodeList.Nodes[i].Id == nodeName {
@@ -479,15 +446,8 @@ func GetNodeMetric(c *gin.Context) {
             log.Printf("%d", baseLine)
             log.Printf("%d", defaultThreshold)
  
-            found = 1
-
             break
-        } 
-    }
-
-    if found == 0 {
-        c.JSON(404, gin.H{"message": "Invalid Node!",})
-        return
+        }
     }
 
 	q := client.Query{
@@ -497,8 +457,8 @@ func GetNodeMetric(c *gin.Context) {
 
 	dbclient, err := client.NewHTTPClient(client.HTTPConfig{
 		//Addr: "http://localhost:8086",
-		//Addr: "https://metricsfrontdoor-shared.prod.company.com/",
-		//Addr: "https://metricsqueryengine-shared.prod.company.com/",
+		//Addr: "https://metricsdoor-shared.prod.company.com/",
+		//Addr: "https://metricsengine-shared.prod.company.com/",
                 Addr: metricURL,
 	})
         if err != nil {
@@ -521,6 +481,9 @@ func GetNodeMetric(c *gin.Context) {
                 log.Println(response)
                 c.AbortWithStatus(http.StatusNotFound)
 	}
+     
+    //c.JSON(http.StatusOK,gin.H{ "message": "in GetNodeMetric!", } )
+
 }
 
 func GetNodeInputMetric(c *gin.Context) {
@@ -528,18 +491,10 @@ func GetNodeInputMetric(c *gin.Context) {
     //variables for node master properties
     var metricSQL string
     var metricURL string
+    //var baseLine  int
     var baseLine  float64
+    //var defaultThreshold int
     var defaultThreshold float64
-
-    nodeList, err := ReadMasterNodeList(masterNodeListFile)
-    if err != nil {
-       log.Println("GetNodeInputMetric(): Error:")
-       log.Println(err)
-       c.JSON(500, gin.H{
-             "message": "Error reading node properties",
-       })
-       return
-    }
 
     // Read the input node list
     jsonFile, err := os.Open("nodeInput.json")
@@ -602,8 +557,8 @@ func GetNodeInputMetric(c *gin.Context) {
 
 	dbclient, err := client.NewHTTPClient(client.HTTPConfig{
 		//Addr: "http://localhost:8086",
-		//Addr: "https://metricsfrontdoor-shared.prod.company.com/",
-		//Addr: "https://metricsqueryengine-shared.prod.company.com/",
+		//Addr: "https://metricsdoor-shared.prod.company.com/",
+		//Addr: "https://metricsengine-shared.prod.company.com/",
                 Addr: metricURL,
 	})
         if err != nil {
