@@ -28,7 +28,6 @@ type Node struct {
        Baseline         float64    `json:"baseline"`
        TapApp           string `json:"tapApp"`
        MetricSql        string `json:"metricSql"`
-       MetricDetailSql  string `json:"metricDetailSql"`
        MetricURL        string `json:"metricURL"`
        MetricDB         string `json:"metricDB"`
        MetricDBType     string `json:"metricDBType"`
@@ -53,13 +52,6 @@ type NodeInput struct{
 // List of input nodes
 type NodeInputList struct {
      Nodes []NodeInput `json:"nodes"`
-}
-
-// Labels and Values JSON for node detail metric
-type NodeDetailMetricLabelValue struct{
-     MetricName string `json:"metric_name"`
-     Labels []string   `json:"labels"`
-     Values []float64  `json:"values"`
 }
 
 // Global variable to store master-node-list
@@ -185,8 +177,6 @@ func StartWebServer() {
 
         // get the metric value for a node
 	router.GET("/nodemetric/:nodeName", GetNodeMetric)
-	router.GET("/nodedetailmetric/:nodeName", GetNodeDetailMetric)
-	router.GET("/nodedetaillabelsvalues/:nodeName", GetNodeDetailMetricLabelsValues)
 
         // get the metric value for input node list
         // TBD - CODE THIS WITH FUNCTION CALLS RATHER THAN CALLING INFLUX IN GetNodeInputMetric()
@@ -209,48 +199,6 @@ func QueryNodeMetric(node Node) (res []client.Result, err error){
      id  := node.Id
      url := node.MetricURL
      sql := node.MetricSql
-     db  := node.MetricDB
-     dbtype := node.MetricDBType
-
-     var blankResult []client.Result
-
-     log.Println("-------------------------")
-     log.Println("QueryNodeMetric(): For node: " + id)
-     log.Println(url)
-     log.Println(sql)
-     log.Println(db)
-     log.Println(dbtype)
-     log.Println("-------------------------")
-
-     if (strings.ToLower(dbtype) == "influx") {
-          
-          log.Println("QueryNodeMetric(): Calling QueryInflux() For node: " + id)
-          res, err := QueryInflux(url,sql,db)
-          if (err == nil) {
-              return res, nil
-          } else {
-              log.Println(err)
-              return res, err
-          }
-
-     } else {
-            //log.Println("Invalid metric DB type for node: %s", node.Id)
-            log.Println("Invalid metric DB type for node: %s", node.Id)
-
-            return blankResult, errors.New("Invalid metric DB type")
-     }
-  
-     return blankResult, errors.New("Invalid metric DB type")
-}
-
-// Detail metric of node - time-series
-func QueryNodeDetailMetric(node Node) (res []client.Result, err error){
-
-     log.Println("QueryNodeMetric(): Entering the function")
-
-     id  := node.Id
-     url := node.MetricURL
-     sql := node.MetricDetailSql
      db  := node.MetricDB
      dbtype := node.MetricDBType
 
@@ -416,8 +364,7 @@ func UpdateNetworkMetrics(network string) (updatedNetwork NodeInputList, err err
 
                 for l := range seriesData.Series[k].Tags {
 
-                   // There may or may not be tags
-                   fmt.Println("TAG: " + seriesData.Series[k].Tags[l])
+                   fmt.Println(seriesData.Series[k].Tags[l])
                 }
 
                 for m := range seriesData.Series[k].Values {
@@ -435,6 +382,7 @@ func UpdateNetworkMetrics(network string) (updatedNetwork NodeInputList, err err
             }
         }
 
+        
         log.Println("UpdateNetworkMetrics(): Network with updated metrics:")
         log.Println(nodeInputList.Nodes)
         log.Println("UpdateNetworkMetrics(): -------------------------")
@@ -443,6 +391,44 @@ func UpdateNetworkMetrics(network string) (updatedNetwork NodeInputList, err err
 }
 
 
+//------ ORIGINAL/OLD STUFF (all working in influx01 folder) -----//
+func QueryDbTgt(c *gin.Context) {
+        //cmd := "SELECT mean(db_up_status) FROM gowrishora1 WHERE oracledb_service = 'ORDPROD' AND time > now() - 30m"
+        cmd := "SELECT count(metric_value) FROM oracle_dbstatus WHERE _ci_id = 'CI1234' AND application = 'RDBMS' AND oracledb_service = 'ORDPROD' AND metric_name = 'instance_status' AND time > now() - 30m"
+        log.Println("Query Is", cmd)
+
+	q := client.Query{
+		Command:  cmd,
+		Database: "metrics",
+	}
+
+	dbclient, err := client.NewHTTPClient(client.HTTPConfig{
+		//Addr: "http://localhost:8086",
+		//Addr: "https://metricsdoor-shared.prod.company.com/",
+		Addr: "https://metricsengine-shared.prod.company.com/",
+              
+	})
+        if err != nil {
+           log.Println("Influx DB Client error")
+           c.AbortWithStatus(http.StatusNotFound)
+        }
+
+	if response, err := dbclient.Query(q); err == nil {
+		if response.Error() != nil {
+                    log.Println("Error in query results")
+                    log.Println(response)
+                    c.AbortWithStatus(http.StatusNotFound)
+		}
+		res := response.Results
+                //log.Println("got query results")
+                //log.Println(res)
+		c.JSON(http.StatusOK, res)
+	} else {
+                log.Println("failed to get query results")
+                log.Println(response)
+                c.AbortWithStatus(http.StatusNotFound)
+	}
+}
 
 // Gets metrics for the node in URL parameter
 func GetNodeMetric(c *gin.Context) {
@@ -486,108 +472,6 @@ func GetNodeMetric(c *gin.Context) {
        c.JSON(http.StatusOK, res)
     }
 
-}
-
-// Detail metric of node - time-series
-func GetNodeDetailMetric(c *gin.Context) {
-
-    nodeName := c.Params.ByName("nodeName")
-    var metricDetailSQL string
-    var metricURL string
-    var metricDB  string
-
-    node := GetNodeById(nodeName)
-    if node.Id == "" {
-       log.Println("GetNodeById(): Invalid Node!")
-       c.JSON(500, gin.H{ "message": "Invalid Node!", })
-       return
-    }
-
-    metricDetailSQL = node.MetricDetailSql
-    metricURL = node.MetricURL
-    metricDB  = node.MetricDB
-          
-    log.Printf(nodeName + " found" )
-    log.Printf(metricDetailSQL)
-    log.Printf(metricURL)
-    log.Printf(metricDB)
- 
-    res, err := QueryNodeDetailMetric(node)
-
-    if err != nil {
-       log.Println("GetNodeDetailMetric(): Error querying metrics for the node")
-       log.Println(res)
-       c.JSON(500, gin.H{ "message": "Error querying metrics for the node", })
-    } else {
-       c.JSON(http.StatusOK, res)
-    }
-}
-
-// Get detailed metric in two arrays of labels and values
-// To create 'chart graphs' 
-func GetNodeDetailMetricLabelsValues(c *gin.Context) {
-
-        log.Println("GetNodeDetailMetricLabelsValues(): Entering the function")
-
-        var nodeDetailMetricValue NodeDetailMetricLabelValue 
-
-        nodeName := c.Params.ByName("nodeName")
-        node := GetNodeById(nodeName) // TBD Error handling
-
-        log.Printf("GetNodeDetailMetricLabelsValues(): Querying for Node Id: %s",  node.Id)
-
-        res, err := QueryNodeDetailMetric(node)
-            
-        log.Println("GetNodeDetailMetricLabelsValues(): Result: ")
-        log.Println(res)
-        log.Println("GetNodeDetailMetricLabelsValues(): Error: ")
-        log.Println(err)
-
-        if (err != nil) {
-               log.Println("GetNodeDetailMetricLabelsValues(): Error while fetching metric for node: " + node.Id + ": ")
-               log.Println(err)
-
-               c.JSON(500, gin.H{ "message": "Error querying metrics for the node", })
-        }
-
-        // The first item in the resultset is the required data - and as json would have a tag 'Series'
-        seriesData := res[0]
-
-        
-        // This loop may not be needed as usually we have only one series - so, seriesData.Series[0] may be sufficient
-        for k := range seriesData.Series {
-            log.Println("Processing Series item index:")
-            log.Println(k)
-
-            for l := range seriesData.Series[k].Tags {
-
-               // There may or may not be tags
-               fmt.Println(seriesData.Series[k].Tags[l])
-            }
-       
-            nodeDetailMetricValue.MetricName = seriesData.Series[k].Name
-            fmt.Println("Series Name: " + seriesData.Series[k].Name)
-
-            for m := range seriesData.Series[k].Values {
-               fmt.Println("Value0: " )
-               fmt.Println(seriesData.Series[k].Values[m][0])
-               fmt.Println("Value1: " )
-               fmt.Println(seriesData.Series[k].Values[m][1])
-
-               var floatValue float64
-               floatValue, _ = seriesData.Series[k].Values[m][1].(json.Number).Float64()
-               fmt.Println("floatValue is:")
-               fmt.Println(floatValue)
- 
-               nodeDetailMetricValue.Labels = append(nodeDetailMetricValue.Labels, seriesData.Series[k].Values[m][0].(string))
-               nodeDetailMetricValue.Values = append(nodeDetailMetricValue.Values, floatValue)
-            }
-        }
-
-        fmt.Println("nodeDetailMetricValue is: ")
-        fmt.Println(nodeDetailMetricValue)
-
-        c.JSON(http.StatusOK, nodeDetailMetricValue)
 }
 
 // OLD - Gets metrics for the node in URL parameter
@@ -660,8 +544,8 @@ func GetNodeMetricOld(c *gin.Context) {
 
     dbclient, err := client.NewHTTPClient(client.HTTPConfig{
 	//Addr: "http://localhost:8086",
-	//Addr: "https://metricsfrontdoor-shared.prod.company.com/",
-	//Addr: "https://metricsqueryengine-shared.prod.company.com/",
+	//Addr: "https://metricsdoor-shared.prod.company.com/",
+	//Addr: "https://metricsengine-shared.prod.company.com/",
         Addr: metricURL,
     })
     if err != nil {
@@ -771,8 +655,8 @@ func GetNodeInputMetric(c *gin.Context) {
 
 	dbclient, err := client.NewHTTPClient(client.HTTPConfig{
 		//Addr: "http://localhost:8086",
-		//Addr: "https://metricsfrontdoor-shared.prod.company.com/",
-		//Addr: "https://metricsqueryengine-shared.prod.company.com/",
+		//Addr: "https://metricsdoor-shared.prod.company.com/",
+		//Addr: "https://metricsengine-shared.prod.company.com/",
                 Addr: metricURL,
 	})
         if err != nil {
@@ -883,45 +767,6 @@ func QueryDbLocalMac(c *gin.Context) {
                 log.Println(res)
 		c.JSON(http.StatusOK, res)
 	} else {
-                c.AbortWithStatus(http.StatusNotFound)
-	}
-}
-
-//------ ORIGINAL/OLD STUFF (all working in influx01 folder) -----//
-func QueryDbTgt(c *gin.Context) {
-        //cmd := "SELECT mean(db_up_status) FROM gowrishora1 WHERE oracledb_service = 'ORDPROD' AND time > now() - 30m"
-        cmd := "SELECT count(metric_value) FROM oracle_dbstatus WHERE _ci_id = 'CI1234' AND application = 'RDBMS' AND oracledb_service = 'ORDPROD' AND metric_name = 'instance_status' AND time > now() - 30m"
-        log.Println("Query Is", cmd)
-
-	q := client.Query{
-		Command:  cmd,
-		Database: "metrics",
-	}
-
-	dbclient, err := client.NewHTTPClient(client.HTTPConfig{
-		//Addr: "http://localhost:8086",
-		//Addr: "https://metricsfrontdoor-shared.prod.company.com/",
-		Addr: "https://metricsqueryengine-shared.prod.company.com/",
-              
-	})
-        if err != nil {
-           log.Println("Influx DB Client error")
-           c.AbortWithStatus(http.StatusNotFound)
-        }
-
-	if response, err := dbclient.Query(q); err == nil {
-		if response.Error() != nil {
-                    log.Println("Error in query results")
-                    log.Println(response)
-                    c.AbortWithStatus(http.StatusNotFound)
-		}
-		res := response.Results
-                //log.Println("got query results")
-                //log.Println(res)
-		c.JSON(http.StatusOK, res)
-	} else {
-                log.Println("failed to get query results")
-                log.Println(response)
                 c.AbortWithStatus(http.StatusNotFound)
 	}
 }
