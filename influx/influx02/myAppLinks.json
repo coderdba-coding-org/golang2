@@ -1,0 +1,13 @@
+{
+    "links": [
+      {"source": "MyApp", "target": "MyAppCloudVM"},
+      {"source": "MyApp", "target": "OrderCheckCall"},
+      {"source": "MyApp", "target": "Kafka"},
+      {"source": "MyApp", "target": "RabbitMQ"},
+      {"source": "OrderCheckCallCloudVM", "target": "OraDB"},
+      {"source": "OrderCheckCall", "target": "OrderCheckCallCloudVM"},
+      {"source": "Router", "target": "Kafka"},
+      {"source": "Router", "target": "OrderCheckCallCloudVM"},
+      {"source": "Router", "target": "RabbitMQ"}
+    ]
+  }  
