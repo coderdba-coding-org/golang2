@@ -9,6 +9,9 @@ Viper for config settings:
 - https://dev.to/techschoolguru/load-config-from-file-environment-variables-in-golang-with-viper-2j2d
 - https://medium.com/@felipedutratine/manage-config-in-golang-to-get-variables-from-file-and-env-variables-33d876887152
 
+Logging 
+- Adding WARN, INFO, CRIT etc: https://www.honeybadger.io/blog/golang-logging/
+
 =====================
 SETUP
 =====================
