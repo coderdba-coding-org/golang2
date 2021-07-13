@@ -93,23 +93,6 @@ func StartWebServer() {
 		*/
 	})
 
-
-	router.GET("/trialquery2process", func(c *gin.Context) {
-		//influx.QueryInflux(defaultInfluxURL, sampleInfluxQuery2, defaultInfluxDB)
-		res, err := influx.QueryInflux(defaultInfluxURL, sampleInfluxQuery2, defaultInfluxDB)
-
-		if err == nil {
-                        influx.ProcessResult1(res)
-			c.JSON(http.StatusOK, res)
-		} else {
-
-                        influx.ProcessResult1(res)
-			c.JSON(501, gin.H{
-				"message": "Trial Query Errored in Influx Query!",
-			})
-		}
-	})
-
 	router.Run(":8085")
 	log.Println("StartWebServer(): Started web server")
 
