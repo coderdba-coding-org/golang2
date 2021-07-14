@@ -1,0 +1,5 @@
+{
+    "id": "oracle_db_and_sql",
+    "layers": [ "oracle_db_and_sql", "oracle_db_and_sql" ],
+    "formula": "product"
+}

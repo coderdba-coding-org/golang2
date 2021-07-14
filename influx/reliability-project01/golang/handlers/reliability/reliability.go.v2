@@ -1,0 +1,142 @@
+// Calculate Reliability number
+
+package influx
+
+import (
+	"encoding/json"
+	"errors"
+	"fmt"
+	"io/ioutil"
+	"log"
+	"os"
+
+	// local packages
+	influx "dbtrends/handlers/influx"
+)
+
+var rel1_config string = "../../config/reliability_sql_db.json"
+
+// Node is each influencer in a "layer"
+type Node struct {
+	Id           string  `json:"id"`
+	SloMetQuery  string  `json:"sloMetQuery"`
+	AllQuery     string  `json:"allQuery"`
+	MetricURL    string  `json:"metricURL"`
+	MetricDB     string  `json:"metricDB"`
+	MetricDBType string  `json:"metricDBType"`
+	Baseline     float64 `json:"baseline"`
+}
+
+// Entity is the main item for which we are calculating reliability
+// Layer1 to LayerN are the sets of nodes that make up that layer
+type Entity struct {
+	Entity string `json:"entity"`
+	Layer1 []Node `json:"layer1"`
+}
+
+// Reliability of each node in a "layer"
+type NodeReliability struct {
+	Id             string  `json:"id"`
+	SloMetValue    float64 `json:"sloMetValue"`
+	AllValue       float64 `json:"allValue"`
+	ReliabilityPct float64 `json:"reliabilityPct"`
+}
+
+// Reliability of an entity
+type EntityReliability struct {
+	Entity            string            `json:"entity"`
+	Layer1Reliability []NodeReliability `json:"layer1"`
+}
+
+// Read the master-list of nodes into memory
+func CalculateReliability(reliabilityFor string) (err error) {
+
+	// READ THE ENTITY FROM ITS CONFIG FILE
+	//var entity Entity
+	entity := Entity{}
+
+	// Read the config file for SLO metric definitions
+	filePath := "config/reliability_" + reliabilityFor + ".json"
+	jsonFile, err := os.Open(filePath)
+	if err != nil {
+		log.Println(err)
+		return errors.New("Could not read config file " + filePath)
+	}
+
+	defer jsonFile.Close()
+
+	byteValue, _ := ioutil.ReadAll(jsonFile)
+	json.Unmarshal(byteValue, &entity)
+
+	fmt.Println("Entity is:")
+	fmt.Println(entity)
+
+	// PARSE THROUGH THE SQL'S AND GET THE METRIC FROM DB
+	fmt.Println("Parsing for entity: " + entity.Entity)
+
+	var sloSum float64
+	var sloCount float64
+	var sloForLayer float64
+
+	// For the layer, get the SLO for each item
+	for i := 0; i < len(entity.Layer1); i++ {
+
+		var sloMetValue float64
+		var allValue float64
+		var slo float64
+
+		fmt.Println("**** Id: ", entity.Layer1[i].Id)
+
+		fmt.Println("**** Running SloMetQuery:")
+		resSloMetQuery, err1 := influx.QueryInflux(entity.Layer1[i].MetricURL, entity.Layer1[i].SloMetQuery, entity.Layer1[i].MetricDB)
+		if err1 != nil {
+			log.Println(err)
+			return errors.New("Could not query Slo Met Query ")
+		}
+		// if no results are returned
+		if len(resSloMetQuery[0].Series) == 0 {
+			fmt.Printf("WARN: Result of SLO Met Query is null \n")
+			sloMetValue = 0
+		} else {
+			fmt.Println(resSloMetQuery)
+			sloMetValue, _ = resSloMetQuery[0].Series[0].Values[0][1].(json.Number).Float64()
+			fmt.Printf("sloMetValue from result: %f \n", sloMetValue)
+		}
+
+		fmt.Println("**** Running AllQuery:")
+		resAllQuery, err2 := influx.QueryInflux(entity.Layer1[i].MetricURL, entity.Layer1[i].AllQuery, entity.Layer1[i].MetricDB)
+		if err2 != nil {
+			log.Println(err)
+			return errors.New("Could not query Slo Met Query ")
+		}
+		// if no results are returned
+		if len(resSloMetQuery[0].Series) == 0 {
+			fmt.Printf("WARN: Result of All Query is null \n")
+			allValue = 0
+		} else {
+			fmt.Println(resAllQuery)
+			allValue, _ = resAllQuery[0].Series[0].Values[0][1].(json.Number).Float64()
+			fmt.Printf("allValue from result: %f \n", allValue)
+		}
+
+		if sloMetValue == 0 {
+			slo = 0
+		} else {
+			if allValue == 0 {
+				slo = -1
+			} else {
+				slo = sloMetValue / allValue
+			}
+		}
+
+		sloSum = sloSum + slo
+		sloCount = sloCount + 1
+
+		fmt.Printf("slo calculated for the component: %f \n", slo)
+	}
+
+	sloForLayer = sloSum / sloCount
+	fmt.Printf("*** slo calculated for the layer: %f \n", sloForLayer)
+
+	return nil
+}

@@ -1,0 +1,9 @@
+{
+  "id": "oracle_db_up", 
+  "sloMetQuery":"SELECT count(metric_value) FROM oracle_dbstatus WHERE (oracledb_service = 'ORDERS' AND application = 'RDBMS' AND metric_name = 'instance_status' AND environment = 'production') AND metric_value = 1 AND time > now() - 60m",
+  "allQuery":"SELECT count(metric_value) FROM oracle_dbstatus WHERE (oracledb_service = 'ORDERS' AND application = 'RDBMS' AND metric_name = 'instance_status' AND environment = 'production') AND time > now() - 60m",
+  "metricURL":"https://localhost:8086/",
+  "metricDB":"metrics",
+  "metricDBType":"influx",
+  "baseline":0.999
+}

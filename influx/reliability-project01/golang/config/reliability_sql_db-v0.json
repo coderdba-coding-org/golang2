@@ -1,0 +1,21 @@
+{
+    "entity": "SQL-DB-Reliability",
+    "layer1": [
+      {"id": "sql_time_order_snapshot", 
+       "sloMetQuery":"SELECT count(Avg_Elap_Tm_by_Exec_ms) FROM ( SELECT sum(tot_elap_sec) / sum(execs) * 1000 AS Avg_Elap_Tm_by_Exec_ms FROM oracle_topsql_elpsd WHERE (_blossom_id = 'CI123' AND db_service = 'ORDERS_NODE1' AND (schema = 'OMSMGR' OR schema = 'ORDERSUSER') AND environment = 'production') AND (sql_text_short =~ /^insert into order_snapshot/) AND time > now() - 60m GROUP BY time(10m) fill(null)) WHERE Avg_Elap_Tm_by_Exec_ms <= 25",
+       "allQuery":"SELECT count(Avg_Elap_Tm_by_Exec_ms) FROM ( SELECT sum(tot_elap_sec) / sum(execs) * 1000 AS Avg_Elap_Tm_by_Exec_ms FROM oracle_topsql_elpsd WHERE (_blossom_id = 'CI123' AND db_service = 'ORDERS_NODE1' AND (schema = 'OMSMGR' OR schema = 'ORDERSUSER') AND environment = 'production') AND (sql_text_short =~ /^insert into order_snapshot/) AND time > now() - 60m GROUP BY time(10m) fill(null))",
+       "metricURL":"https://localhost:8086/",
+       "metricDB":"metrics",
+       "metricDBType":"influx",
+       "baseline":25
+       },
+      {"id": "sql_time_order_line_snapshot", 
+       "sloMetQuery":"SELECT count(Avg_Elap_Tm_by_Exec_ms) FROM ( SELECT sum(tot_elap_sec) / sum(execs) * 1000 AS Avg_Elap_Tm_by_Exec_ms FROM oracle_topsql_elpsd WHERE (_blossom_id = 'CI123' AND db_service = 'ORDERS_NODE1' AND (schema = 'OMSMGR' OR schema = 'ORDERSUSER') AND environment = 'production') AND (sql_text_short =~ /^insert into order_line_snapshot/) AND time > now() - 60m GROUP BY time(10m) fill(null)) WHERE Avg_Elap_Tm_by_Exec_ms <= 30",
+       "allQuery":"SELECT count(Avg_Elap_Tm_by_Exec_ms) FROM ( SELECT sum(tot_elap_sec) / sum(execs) * 1000 AS Avg_Elap_Tm_by_Exec_ms FROM oracle_topsql_elpsd WHERE (_blossom_id = 'CI123' AND db_service = 'ORDERS_NODE1' AND (schema = 'OMSMGR' OR schema = 'ORDERSUSER') AND environment = 'production') AND (sql_text_short =~ /^insert into order_line_snapshot/) AND time > now() - 60m GROUP BY time(10m) fill(null))",
+       "metricURL":"https://localhost:8086/",
+       "metricDB":"metrics",
+       "metricDBType":"influx",
+       "baseline":30
+       }
+    ]
+}

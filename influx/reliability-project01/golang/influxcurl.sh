@@ -1,0 +1,1 @@
+http://localhost:8080/query?q=SELECT%20count(metric_value)%20AS%20value%20FROM%20oracle_dbstatus%20WHERE%20config_item%20=%20%27CI123%27%20AND%20application%20=%20%27RDBMS%27%20AND%20oracledb_service%20=%20%27ORDERS%27%20AND%20metric_name%20=%20%27instance_status%27%20AND%20time%20%3E%20now()%20-%2030m
