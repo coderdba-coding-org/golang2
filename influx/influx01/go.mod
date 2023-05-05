@@ -3,8 +3,7 @@ module influx01
 go 1.13
 
 require (
-	github.com/gin-gonic/gin v1.6.3
-	github.com/go-chi/chi v4.1.2+incompatible // indirect
-	github.com/influxdata/influxdb v1.8.4
-	github.com/sirupsen/logrus v1.8.1 // indirect
+	github.com/gin-gonic/gin v1.9.0
+	github.com/influxdata/influxdb1-client v0.0.0-20220302092344-a9ab5670611c
+	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 )
